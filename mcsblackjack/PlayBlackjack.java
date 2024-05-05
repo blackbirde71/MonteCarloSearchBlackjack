@@ -1,5 +1,7 @@
 /*
-* Main file. Covers the end user implementation, including features like the command line interface implementation
+* Main file. Will manage:
+	- Blackjack player vs computer game
+	- Command line interface
 * Will instantiate a Blackjack game with a MonteCarloSearchTree as its computer:
 * 	game = new Blackjack();
 *	game.computer = new MonteCarloSearchTree();

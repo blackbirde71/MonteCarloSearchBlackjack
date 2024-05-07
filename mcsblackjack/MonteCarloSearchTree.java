@@ -29,7 +29,7 @@ public class MonteCarloSearchTree{
     	root = new Node();
         current = root;
     }
-    public selectExpand(){
+    public select(){
         resetCurrent();
         if(current.isTerminal){
             if(current.count==0){
@@ -48,18 +48,27 @@ public class MonteCarloSearchTree{
             current = findMax();
         }
     }
-    public void rollout(){
-        rolloutRecurse(current);
+    public void update(){
+        long simReward = rollout(current);
     }
-    public Node rollout
+    public long rollout(Node simState){
+        if(simState.isTerminal){
+            return simState.reward;
+        }
+        simState = getRandomMove(simState);
+        return rollout(simState);
+    }
     public void backpropagate(){
-
+        
     }
     public Node findMax(){
 
     }
     public addState(Long l){
 
+    }
+    public static Node getRandomMove(Node currentState) {
+        return currentState.children.get(new Random().nextInt(currentState.children.size()));
     }
     abstract void resetCurrent();
     abstract ArrayList<Long> getMoves();

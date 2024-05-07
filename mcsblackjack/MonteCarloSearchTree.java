@@ -11,7 +11,7 @@ package mcsblackjack;
 import java.util.*; 
 public class MonteCarloSearchTree{
 	public Node root;
-    public long state;
+    public Long state;
     public Node current;
 	public class Node{
         public ArrayList<Node> children;
@@ -35,18 +35,34 @@ public class MonteCarloSearchTree{
             if(current.count==0){
                 rollout();
             }
-            else(){
-                ArrayList<Long> availMoves = 
+            else{
+                ArrayList<Long> availMoves = findMoves();
+                for(Long l : availMoves){
+                    addState(l);
+                }
+                current = availMoves.get(0);
+                rollout();
             }
         }
+        else{
+            current = findMax();
+        }
     }
-    public rollout(){
+    public void rollout(){
+        rolloutRecurse(current);
+    }
+    public Node rollout
+    public void backpropagate(){
 
     }
-    public backpropagate(){
+    public Node findMax(){
+
+    }
+    public addState(Long l){
 
     }
     abstract void resetCurrent();
+    abstract ArrayList<Long> getMoves();
     abstract ArrayList<Long> getMoves();
     /*public boolean addWord(String word){
         // 🟢TODO: Finish this method

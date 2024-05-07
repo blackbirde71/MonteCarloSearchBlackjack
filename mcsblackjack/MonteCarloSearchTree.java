@@ -50,6 +50,7 @@ public class MonteCarloSearchTree{
     }
     public void update(){
         long simReward = rollout(current);
+        backpropagate(  );
     }
     public long rollout(Node simState){
         if(simState.isTerminal){
@@ -59,7 +60,7 @@ public class MonteCarloSearchTree{
         return rollout(simState);
     }
     public void backpropagate(){
-        
+
     }
     public Node findMax(){
 

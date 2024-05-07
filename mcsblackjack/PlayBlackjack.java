@@ -3,4 +3,4 @@
 	- Blackjack player   vs computer game
 	- Command line interface
 */
-package mcsblackjack;
+// package mcsblackjack;

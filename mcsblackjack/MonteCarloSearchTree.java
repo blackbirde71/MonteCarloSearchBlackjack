@@ -1,7 +1,7 @@
 /**
 * Abstract class for Monte Carlo Search Tree
 *
-* Inner class "State" (node)
+* Inner class "Node"
 *	Needs to store:
 *		- State of the table
 *		- Reward - r_i - Cumulative rewards of associated leaf nodes
@@ -10,28 +10,45 @@
 package mcsblackjack;
 import java.util.*; 
 public class MonteCarloSearchTree{
-	public State root;
-	public class State{
-        public ArrayList<State> children;
+	public Node root;
+    public long state;
+    public Node current;
+	public class Node{
+        public ArrayList<Node> children;
         public boolean isTerminal;
-        public State(){
+        public long count;
+        public long reward;
+        public Node(){
             this.children = new ArrayList<String>;
             this.isTerminal = false;
+            this.count = 0;
+            this.reward = 0;
         }
     }
-
-    //////////////////// ADAPTING FROM TRIE CODE
-
-    public LexiconTrie(){
-    	root = new Node(); 
+    public MonteCarloSearchTree(){
+    	root = new Node();
+        current = root;
     }
+    public selectExpand(){
+        resetCurrent();
+        if(current.isTerminal){
+            if(current.count==0){
+                rollout();
+            }
+            else(){
+                ArrayList<Long> availMoves = 
+            }
+        }
+    }
+    public rollout(){
 
-    /** 
-     * Adds the word to the lexicon
-     * @return true if the method successfully added the word
-     * @return false if the word was already in the lexicon
-     */
-    public boolean addWord(String word){
+    }
+    public backpropagate(){
+
+    }
+    abstract void resetCurrent();
+    abstract ArrayList<Long> getMoves();
+    /*public boolean addWord(String word){
         // 🟢TODO: Finish this method
         // Iterate over letters
         // For each letter:
@@ -61,12 +78,6 @@ public class MonteCarloSearchTree{
         }
         return added; 
         }
-
-    /** 
-     * Remove word from the trie if the trie contains it.
-     * @return true if the method successfully removed the word. 
-     * @return false if the trie did not contain the word. 
-     */
         public boolean removeWord(String word){
         // 🟢TODO: Finish this method
         Node currentNode = root;
@@ -85,10 +96,6 @@ public class MonteCarloSearchTree{
         }
         return removed; 
     }
-        
-    /**
-     * @return true if the word is in the lexicon. 
-     */
     public boolean containsWord(String word){
     	// 🟢TODO: Finish this method
         int index;
@@ -105,16 +112,6 @@ public class MonteCarloSearchTree{
         }
         return false;
     }
-
-    /**
-     * Gathers all words in the trie 
-     * 
-     * @return An ArrayList where each element in the Array List is a 
-     * word in the trie
-     * 
-     * Hints: 
-     * - It may be helpful to write a recursive helper function here   
-     */
     public ArrayList<String> getAllWords() {
         return recurse(root, "", 0, new ArrayList<String>());
     }
@@ -129,7 +126,7 @@ public class MonteCarloSearchTree{
             }
         }
         return allWords;
-    }
+    }*/
     /**
      * This returns a Hash Table where the keys are the targets (target words) 
      * and the value for each key is an ArrayList of all words in the lexicon 

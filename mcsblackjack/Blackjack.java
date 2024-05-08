@@ -6,18 +6,20 @@
 package mcsblackjack;
 import java.util.*
 public class Blackjack{
-	Hashtable<ArrayList<Hand>, Long> gameStateTable = new Hashtable<>();
+	Hashtable<Hand[], Long> gameStateTable = new Hashtable<>();
 	public Blackjack{
 		initHashtable();
 	}
 	public void initHashtable{
 
 	}
-	public Long hashState(ArrayList<Hand> table){
+	public Long hashState(Hand[] table){
+		Long stateNumber = long(0);
 		for(int hi = 0; hi<3; hi++){
-			for(int ci = 0; ci<6)
-
+			for(int ci = 0; ci<5; ci++){
+				stateNumber += table[hi][ci] * Math.pow(13,hi)
 			}
 		}
+		return stateNumber;
 	}
 }

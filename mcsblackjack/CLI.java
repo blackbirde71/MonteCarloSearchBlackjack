@@ -20,10 +20,12 @@ enum HandType {
 }
 
 class Hand {
-	public ArrayList<Card> cards;
+	public Card[] cards = new Card[5];
 	public HandType type;
+	private static HashMap<Integer, String> suit = new HashMap<Integer, String> ();
+	private static HashMap<Integer, String> rank = new HashMap<Integer, String> ();
 
-	public Hand(ArrayList<Card> cards, HandType type) {
+	public Hand(Card[] cards, HandType type) {
 		this.cards = cards;
 		this.type = type;
 
@@ -38,15 +40,9 @@ class Hand {
 		rank.put(14, "A");
 	}
 
-	private static HashMap<Integer, String> suit = new HashMap<Integer, String> ();
-
-	private static HashMap<Integer, String> rank = new HashMap<Integer, String> ();
-
 	public static String getSuit(int i) {
 		return suit.get(i);
-	}
-
-	
+	}	
 
 	public static String getRank(int i) {
 		if (i < 11) {
@@ -56,27 +52,32 @@ class Hand {
 		}
 	}
 
-	// public void addCard(Card c) {
-	// 	cards.add(c);
-	// }
+	public void addCard(Card c) {
+		int numCards = cards.length;
+		if (numCards >= 5) {
+			System.out.println("You cannot draw more cards!");
+		} else {
+			cards[numCards] = c;
+		}
+	}
 
 	public String toString() {
 		// number of cards
-		int numCards = cards.size();
+		int numCards = cards.length;
 
 		// String hiddenCard = 
-		// "┌---------┐\n" +
+		// "*---------*\n" +
 		// "|XXXXXXXXX|\n" +
 		// "|XXXXXXXXX|\n" +
 		// "|XXXXXXXXX|\n" +
 		// "|XXXXXXXXX|\n" +
 		// "|XXXXXXXXX|\n" +
 		// "|XXXXXXXXX|\n" +
-		// "└---------┘\n";
+		// "*---------*\n";
 
 		String space = "    ";
-		String top = "┌---------┐";
-		String bottom = "└---------┘";
+		String top = "*---------*";
+		String bottom = "*---------*";
 		String shown = "|         |";
 		String hidden = "|XXXXXXXXX|";
 
@@ -84,13 +85,13 @@ class Hand {
 		String hand = "";
 
 		// card example:
-		// ┌---------┐
+		// *---------*
 		// | K       |
 		// |		 |
 		// |    ♣	 |
 		// |         |
 		// |       K |
-		// └---------┘
+		// *---------*
 
 		// filling the card tops
 		for (int j=0; j<numCards; j++) {
@@ -112,9 +113,9 @@ class Hand {
 						String symbol;
 						// determine what the symbol is
 						if (r == 2) {
-							symbol = getSuit(cards.get(c).suit);
+							symbol = getSuit(cards[c].suit);
 						} else {
-							symbol = getRank(cards.get(c).rank);
+							symbol = getRank(cards[c].rank);
 						}
 						hand += shown.substring(0, s) + symbol + shown.substring(s+symbol.length(), 11) + space;
 					} else {
@@ -147,13 +148,7 @@ public class CLI {
 	public ArrayList<Card> computer = new ArrayList<Card> ();
 
 	public static void main(String[] args){
-		ArrayList<Card> a = new ArrayList<Card> ();
-		Card c1 = new Card(0, 10);
-		Card c2 = new Card(1, 11);
-		Card c3 = new Card(2, 2);
-		a.add(c1);
-		a.add(c2);
-		a.add(c3);
+		Card[] a = {new Card(0, 10), new Card(1, 11), new Card(2, 2)};
 
         Hand h1 = new Hand(a, HandType.PLAYER);
         Hand h2 = new Hand(a, HandType.DEALER);

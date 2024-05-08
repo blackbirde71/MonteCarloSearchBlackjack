@@ -1,2 +1,2 @@
 To do:
-	- 
+	- Determine if it actually is a tree (for technicality purposes) (could be a DAG?) (consider bidirectionality)

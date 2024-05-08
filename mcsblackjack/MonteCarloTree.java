@@ -10,9 +10,11 @@
 package mcsblackjack;
 import java.util.*; 
 public abstract class MonteCarloTree{
+    public final float EXPLORATION = 2;
 	public Node root;
     public Node current;
-    public int n;
+    public Node gameState;
+    public int n = 0;
 	public class Node{
         public ArrayList<Node> children;
         public Node parent;
@@ -31,7 +33,25 @@ public abstract class MonteCarloTree{
     public MonteCarloTree(){
     	root = new Node();
         current = root;
-        n = 0;
+    }
+    public void trackMove(Long newState){
+        for(Node n : gameState.children){
+            if(n.state == newState){
+                gameState = n;
+            }
+        }
+    }
+    public Long makeMove(){
+        double score, maxScore;
+        Node maxNode;
+        for(Node n : gameState.children){
+            score = n.reward / n.count;
+            if(score > maxScore){
+                maxNode = n;
+                maxScore = score;
+            }
+        }
+        return maxNode.state;
     }
     public simulate(){
         select();
@@ -80,7 +100,7 @@ public abstract class MonteCarloTree{
         double ucb, maxUcb;
         Node maxNode;
         for(Node n : current.children){
-            double ucb = // ! insert formula ;
+            ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n)/count);
             if(ucb > maxUcb){
                 maxNode = n;
                 maxUcb = ucb;

@@ -1,5 +1,5 @@
 /**
-* Abstract class for Monte Carlo Search Tree
+* Abstract class for Monte Carlo Tree
 *
 * Inner class "Node"
 *	Needs to store:
@@ -9,7 +9,7 @@
 */
 package mcsblackjack;
 import java.util.*; 
-public abstract class MonteCarloSearchTree{
+public abstract class MonteCarloTree{
 	public Node root;
     public Node current;
     public int n;
@@ -28,7 +28,7 @@ public abstract class MonteCarloSearchTree{
             this.reward = 0;
         }
     }
-    public MonteCarloSearchTree(){
+    public MonteCarloTree(){
     	root = new Node();
         current = root;
         n = 0;

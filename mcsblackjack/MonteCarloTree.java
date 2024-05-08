@@ -22,6 +22,7 @@ public abstract class MonteCarloTree{
         public long count;
         public long reward;
         public Long state;
+        public int action;
         public Node(Node state){
             this.children = new ArrayList<String>;
             this.isTerminal = true;
@@ -41,7 +42,7 @@ public abstract class MonteCarloTree{
             }
         }
     }
-    public Long makeMove(){
+    public Long chooseMove(){
         double score, maxScore;
         Node maxNode;
         for(Node n : gameState.children){

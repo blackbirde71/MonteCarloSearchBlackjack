@@ -9,18 +9,21 @@
 */
 package mcsblackjack;
 import java.util.*; 
-public class MonteCarloSearchTree{
+public abstract class MonteCarloSearchTree{
 	public Node root;
-    public Long state;
     public Node current;
+    public int n;
 	public class Node{
         public ArrayList<Node> children;
+        public Node parent;
         public boolean isTerminal;
         public long count;
         public long reward;
-        public Node(){
+        public Long state;
+        public Node(Node state){
             this.children = new ArrayList<String>;
-            this.isTerminal = false;
+            this.isTerminal = true;
+            this.state = state;
             this.count = 0;
             this.reward = 0;
         }
@@ -28,17 +31,24 @@ public class MonteCarloSearchTree{
     public MonteCarloSearchTree(){
     	root = new Node();
         current = root;
+        n = 0;
     }
-    public select(){
+    public simulate(){
+        select();
+        update();
+        n++;
+    }
+    public void select(){
         resetCurrent();
         if(current.isTerminal){
             if(current.count==0){
                 rollout();
             }
             else{
-                ArrayList<Long> availMoves = findMoves();
+                ArrayList<Long> availMoves = findMoves(current.state);
                 for(Long l : availMoves){
-                    addState(l);
+                    current.children.add(new Node(l));
+                    current.isTerminal = false;
                 }
                 current = availMoves.get(0);
                 rollout();
@@ -47,137 +57,48 @@ public class MonteCarloSearchTree{
         else{
             current = findMax();
         }
-    }
+    }   
     public void update(){
-        long simReward = rollout(current);
-        backpropagate(  );
+        current.reward = rollout(current.state);
+        backpropagate();
     }
-    public long rollout(Node simState){
-        if(simState.isTerminal){
-            return simState.reward;
+    public long rollout(Long simState){
+        if(simState.isGameOver){
+            return simState.calcReward;
         }
         simState = getRandomMove(simState);
         return rollout(simState);
     }
     public void backpropagate(){
-
+        while(! current.parent == null){
+                current.parent.reward += current.reward;
+                current.parent.count++;
+                current = current.parent;
+        }
     }
     public Node findMax(){
-
+        double ucb, maxUcb;
+        Node maxNode;
+        for(Node n : current.children){
+            double ucb = // ! insert formula ;
+            if(ucb > maxUcb){
+                maxNode = n;
+                maxUcb = ucb;
+            }
+        }
+        return maxNode;
     }
-    public addState(Long l){
-
+    public Node makeState(Long l){
+        return new Node();
     }
-    public static Node getRandomMove(Node currentState) {
-        return currentState.children.get(new Random().nextInt(currentState.children.size()));
+    public static Long getRandomMove(Node currentState) {
+        ArrayList<Long> availMoves = findMoves(currentState);
+        return availMoves.get(new Random().nextInt(availMoves.size()));
     }
     abstract void resetCurrent();
-    abstract ArrayList<Long> getMoves();
-    abstract ArrayList<Long> getMoves();
-    /*public boolean addWord(String word){
-        // 🟢TODO: Finish this method
-        // Iterate over letters
-        // For each letter:
-            // set current node to root
-            // Check if it is in current node's children
-            // if not
-                // add it [and the rest of the word]
-            // if is
-                // set that to the current node and move on to the next letter
-        Node currentNode = root;
-        int index;
-        boolean added = true;
-        for(int i=0, n=word.length(); i<n; i++) {
-            index = word.charAt(i)-'a';
-            if(currentNode.children[index]==null){
-                currentNode.children[index] = new Node();
-            }
-            if(i==n-1){
-                if(currentNode.children[index].isTerminal){
-                    added = false;
-                }
-                else{
-                    currentNode.children[index].isTerminal = true;}
-                }
-            //System.out.println(Arrays.toString(root.children));
-            currentNode = currentNode.children[index];
-        }
-        return added; 
-        }
-        public boolean removeWord(String word){
-        // 🟢TODO: Finish this method
-        Node currentNode = root;
-        int index;
-        boolean removed = true;
-        boolean removeNext = false;
-        for(int i=0, n=word.length(); i<n; i++) { 
-            index = word.charAt(i)-'a';
-            if(currentNode.children[index]==null){
-                return false;
-            }
-            if(i == n-1){
-                currentNode.children[index].isTerminal = false;
-            }
-            currentNode = currentNode.children[index];
-        }
-        return removed; 
-    }
-    public boolean containsWord(String word){
-    	// 🟢TODO: Finish this method
-        int index;
-        Node currentNode = root;
-        for(int i=0, n=word.length(); i<n; i++) {
-            index = word.charAt(i)-'a';
-            if(currentNode.children[index]==null){
-                return false;
-            }
-            currentNode = currentNode.children[index];
-        }
-        if (currentNode.isTerminal){
-            return true; 
-        }
-        return false;
-    }
-    public ArrayList<String> getAllWords() {
-        return recurse(root, "", 0, new ArrayList<String>());
-    }
-    private ArrayList<String> recurse(Node currentNode, String word, int index, ArrayList<String> allWords) {
-        if(currentNode.isTerminal) {
-            word = word.substring(0,index);
-            allWords.add(word);
-        }
-        for(int i = 0; i < 26; i++) {
-            if(currentNode.children[i] != null) {
-                recurse(currentNode.children[i], (word.substring(0, index) + Character.toString((char) (i + 'a'))+ (word+" ").substring(index+1)).replaceAll(" ", ""), index+1, allWords);
-            }
-        }
-        return allWords;
-    }*/
-    /**
-     * This returns a Hash Table where the keys are the targets (target words) 
-     * and the value for each key is an ArrayList of all words in the lexicon 
-     * whose Hamming distance to the target word is less than or equal to the given `maxDistance`.
-     * 
-     * Example: 
-     *  The trie has words ["a", "are", "as", "new", "no", "not", "zen"] 
-     * 
-     *  suggestCorrections({"ben"}, 1) -> {"ben": {"zen"}}
-     *  suggestCorrections({"nat"}, 2) -> {"nat": {"new", "not"}}
-     *  suggestCorrections({"ben", nat"}, 1) -> {"ben": {"zen"}, nat": {not"}}
-     */
-    public Hashtable<String, ArrayList<String>> suggestCorrections(String[] targets, int maxDistance){
-       // ✨ Extension TODO:Finish this method
-       return null;    
-    }
-
+    abstract ArrayList<Long> findMoves(Long currentState);
+    abstract boolean isGameOver(Long currentState);
+    abstract long calcReward(Long currentState);
     public static void main(String[] args){
-        // 🟢TODO: Write some tests that test your implementation
-        LexiconTrie testTrie = new LexiconTrie();
-        testTrie.addWord("app");
-        testTrie.addWord("apple");
-        testTrie.addWord("speech");
-        testTrie.removeWord("apple");
-        System.out.println(testTrie.getAllWords());
-        //assert(testTrie.containsWord("banana"));
     }
 }

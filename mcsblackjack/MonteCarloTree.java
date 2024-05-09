@@ -11,6 +11,7 @@ package mcsblackjack;
 import java.util.*; 
 public abstract class MonteCarloTree{
     public final float EXPLORATION = 2;
+    public final int NUMITERATIONS = 100;
 	public Node root;
     public Node current;
     public Node gameState;
@@ -63,10 +64,12 @@ public abstract class MonteCarloTree{
             else{
                 ArrayList<State> availMoves = findMoves(current.state);
                 for(State s : availMoves){
-                    current.children.add(new Node(s));
+                    Node newNode = new Node(s);
+                    newNode.parent = current;
+                    current.children.add(new Node(s)); // CONNECT PARENT POINTERS
                     current.isTerminal = false;
                 }
-                current = availMoves.get(0); // CHANGE TO RANDOM
+                current = children.get(Random().nextInt(children.size()));
                 update();
             }
         }
@@ -75,7 +78,9 @@ public abstract class MonteCarloTree{
         }
     }   
     public void update(){
-        current.reward = rollout(current.state);
+        for(int i=0; i<NUMITERATIONS; i++){
+            current.reward += rollout(current.state);
+        }
         backpropagate();
     }
     public long rollout(State simState){
@@ -86,7 +91,7 @@ public abstract class MonteCarloTree{
         return rollout(simState);
     }
     public void backpropagate(){
-        while(! current.parent == null){
+        while(! current.equals(gameState.parent)){
                 current.parent.reward += current.reward;
                 current.parent.count++;
                 current = current.parent;

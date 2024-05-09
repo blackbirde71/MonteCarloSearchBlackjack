@@ -14,16 +14,15 @@ public abstract class MonteCarloTree{
 	public Node root;
     public Node current;
     public Node gameState;
-    public int n = 0;
 	public class Node{
         public ArrayList<Node> children;
         public Node parent;
         public boolean isTerminal;
         public long count;
         public long reward;
-        public Long state;
+        public State state;
         public int action;
-        public Node(Node state){
+        public Node(State state){
             this.children = new ArrayList<String>;
             this.isTerminal = true;
             this.state = state;
@@ -31,18 +30,18 @@ public abstract class MonteCarloTree{
             this.reward = 0;
         }
     }
-    public MonteCarloTree(){
-    	root = new Node();
+    public MonteCarloTree(State initialState){
+    	root = new Node(initialState);
         current = root;
     }
-    public void trackMove(Long newState){
+    public void trackMove(State newState){
         for(Node n : gameState.children){
-            if(n.state == newState){
+            if(n.state.equals(newState)){
                 gameState = n;
             }
         }
     }
-    public Long chooseMove(){
+    public State chooseMove(){
         double score, maxScore;
         Node maxNode;
         for(Node n : gameState.children){
@@ -54,25 +53,20 @@ public abstract class MonteCarloTree{
         }
         return maxNode.state;
     }
-    public simulate(){
-        select();
-        update();
-        n++;
-    }
     public void select(){
         resetCurrent();
         if(current.isTerminal){
             if(current.count==0){
-                rollout();
+                update();
             }
             else{
-                ArrayList<Long> availMoves = findMoves(current.state);
-                for(Long l : availMoves){
-                    current.children.add(new Node(l));
+                ArrayList<State> availMoves = findMoves(current.state);
+                for(State s : availMoves){
+                    current.children.add(new Node(s));
                     current.isTerminal = false;
                 }
-                current = availMoves.get(0);
-                rollout();
+                current = availMoves.get(0); // CHANGE TO RANDOM
+                update();
             }
         }
         else{
@@ -83,7 +77,7 @@ public abstract class MonteCarloTree{
         current.reward = rollout(current.state);
         backpropagate();
     }
-    public long rollout(Long simState){
+    public long rollout(State simState){
         if(simState.isGameOver){
             return simState.calcReward;
         }
@@ -101,7 +95,7 @@ public abstract class MonteCarloTree{
         double ucb, maxUcb;
         Node maxNode;
         for(Node n : current.children){
-            ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n)/count);
+            ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n.parent.count)/n.count); //> CATCH COUNT COUNT == 0 AND N== 0
             if(ucb > maxUcb){
                 maxNode = n;
                 maxUcb = ucb;
@@ -109,17 +103,17 @@ public abstract class MonteCarloTree{
         }
         return maxNode;
     }
-    public Node makeState(Long l){
+    public Node makeState(Long l){ // IGNORE
         return new Node();
     }
-    public static Long getRandomMove(Node currentState) {
-        ArrayList<Long> availMoves = findMoves(currentState);
+    public static STATE getRandomMove(STATE currentState) {
+        ArrayList<STATE> availMoves = findMoves(currentState);
         return availMoves.get(new Random().nextInt(availMoves.size()));
     }
-    abstract void resetCurrent();
-    abstract ArrayList<Long> findMoves(Long currentState);
-    abstract boolean isGameOver(Long currentState);
-    abstract long calcReward(Long currentState);
+    abstract void resetCurrent(); // GO TO CURRENT STATE IN GAME
+    abstract ArrayList<STATE> findMoves(STATE currentState);
+    abstract boolean isGameOver(State currentState);
+    abstract long calcReward(State currentState);
     public static void main(String[] args){
     }
 }

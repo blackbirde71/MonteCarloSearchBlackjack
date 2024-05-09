@@ -114,9 +114,14 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
 
         // should it be sum of reward/count
         // or (sum of rewards) / count
+        // System.out.println(gameNode.children);
+        // System.out.println(123);
         for(int i=0; i<52; i++){
-            Node n = gameNode.children.get(i);
-            totalHitScore += n.reward / n.count;
+        	Node n = gameNode.children.get(i);
+        	// null check against skipped cards
+            if (n != null) {
+            	totalHitScore += n.reward / n.count;
+            }
         }
         totalHitScore = totalHitScore / 52;
 

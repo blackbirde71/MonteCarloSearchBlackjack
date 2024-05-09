@@ -61,6 +61,11 @@ public class BlackjackState {
 		}
 	}
 
+	public boolean equals(BlackjackState a) {
+		if (Arrays.equals(this.cards, a.cards) && this.isStanding == a.isStanding) return true;
+		return false;
+	}
+
 	BlackjackState(int[] arrayOfCards, boolean isStanding) {
 		int i = 0;
 		int score = 0;

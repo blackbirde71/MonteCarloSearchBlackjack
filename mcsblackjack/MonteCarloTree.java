@@ -24,6 +24,11 @@ public abstract class MonteCarloTree<State>{
         public double reward;
         public State state;
         public int action;
+
+        public boolean equals(Node a) {
+            return this.state.equals(a.state);
+        }
+
         public Node(State state){
             this.children = new ArrayList<Node>();
             this.isChildless = true;
@@ -39,6 +44,10 @@ public abstract class MonteCarloTree<State>{
     	root = new Node(initialState);
         current = new Node(initialState);
         gameNode = new Node(initialState);
+        System.out.println(root.equals(current));
+        System.out.println(root.equals(gameNode));
+        System.out.println(current.equals(gameNode));
+
     }
 
     // public void trackMove(State newState){
@@ -53,19 +62,18 @@ public abstract class MonteCarloTree<State>{
     public void select(){
         current = gameNode;
         if(current.isChildless){
-            if(current.count==0){
+            if (current.count==0) {
                 update();
-            }
-            else{
+            } else {
                 State[] availMoves = findMoves(current.state);
                 for(State s : availMoves){
                     Node newNode;
                     if (s != null) {
                         newNode = new Node(s);
+                        newNode.parent = current;
                     } else {
                         newNode = null;
                     }
-                    newNode.parent = current;
                     current.children.add(newNode); // CONNECT PARENT POINTERS
                     current.isChildless = false;
                 }
@@ -98,10 +106,17 @@ public abstract class MonteCarloTree<State>{
     }
 
     public void backpropagate(){
-        while(current.parent != null){ //! current.equals(gameNode.parent)//! STARTS AT TOP
+        while (true) { //! current.equals(gameNode.parent)//! STARTS AT TOP // current.parent != null
+            System.out.println("backprop reached");
+            System.out.println(current.state == null);
+            if (!current.equals(root)) {
                 current.parent.reward += current.reward;
-                current.parent.count++;
-                current = current.parent;
+            }
+            current.count++;
+            if (current.equals(gameNode)) {
+                break;
+            }
+            current = current.parent;
         }
     }
 

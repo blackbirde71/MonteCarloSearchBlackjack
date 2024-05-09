@@ -9,114 +9,137 @@
 */
 package mcsblackjack;
 import java.util.*; 
-public abstract class MonteCarloTree{
-    public final float EXPLORATION = 2;
-    public final int NUMITERATIONS = 100;
+public abstract class MonteCarloTree<State>{
+    public final float EXPLORATION;
+    public final int NUMITERATIONS;
 	public Node root;
     public Node current;
-    public Node gameState;
+    public Node gameNode;
+
 	public class Node{
         public ArrayList<Node> children;
         public Node parent;
-        public boolean isTerminal;
+        public boolean isChildless;
         public long count;
-        public long reward;
+        public double reward;
         public State state;
         public int action;
         public Node(State state){
-            this.children = new ArrayList<String>;
-            this.isTerminal = true;
+            this.children = new ArrayList<Node>();
+            this.isChildless = true;
             this.state = state;
             this.count = 0;
             this.reward = 0;
         }
     }
-    public MonteCarloTree(State initialState){
+
+    MonteCarloTree(State initialState, int EXPLORATION, int NUMITERATIONS){
+        this.NUMITERATIONS = NUMITERATIONS;
+        this.EXPLORATION = EXPLORATION;
     	root = new Node(initialState);
-        current = root;
+        current = new Node(initialState);
+        gameNode = new Node(initialState);
     }
-    public void trackMove(State newState){
-        for(Node n : gameState.children){
-            if(n.state.equals(newState)){
-                gameState = n;
-            }
-        }
-    }
-    public State chooseMove(){
-        double score, maxScore;
-        Node maxNode;
-        for(Node n : gameState.children){
-            score = n.reward / n.count;
-            if(score > maxScore){
-                maxNode = n;
-                maxScore = score;
-            }
-        }
-        current = maxNode;
-        return maxNode.state;
-    }
+
+    // public void trackMove(State newState){
+    //     for(Node n : gameNode.children){
+    //         if(n.state.equals(newState)){
+    //             gameNode = n;
+    //         }
+    //     }
+    // }
+
+    abstract int chooseMove();
     public void select(){
-        resetCurrent();
-        if(current.isTerminal){
+        current = gameNode;
+        if(current.isChildless){
             if(current.count==0){
                 update();
             }
             else{
-                ArrayList<State> availMoves = findMoves(current.state);
+                State[] availMoves = findMoves(current.state);
                 for(State s : availMoves){
-                    Node newNode = new Node(s);
+                    Node newNode;
+                    if (s != null) {
+                        newNode = new Node(s);
+                    } else {
+                        newNode = null;
+                    }
                     newNode.parent = current;
-                    current.children.add(new Node(s)); // CONNECT PARENT POINTERS
-                    current.isTerminal = false;
+                    current.children.add(newNode); // CONNECT PARENT POINTERS
+                    current.isChildless = false;
                 }
-                current = children.get(Random().nextInt(children.size()));
+                current = current.children.get(new Random().nextInt(current.children.size()));
+                // null check - to not explore the cards that are already in the game
+                while (current == null) {
+                    current = current.children.get(new Random().nextInt(current.children.size()));
+                }
                 update();
             }
         }
         else{
             current = findMax();
         }
-    }   
+    } 
+
     public void update(){
         for(int i=0; i<NUMITERATIONS; i++){
             current.reward += rollout(current.state);
         }
         backpropagate();
     }
-    public long rollout(State simState){
-        if(simState.isGameOver){
-            return simState.calcReward;
+
+    public double rollout(State simState){
+        if(isEnd(simState)){
+            return calcReward(simState);
         }
         simState = getRandomMove(simState);
         return rollout(simState);
     }
+
     public void backpropagate(){
-        while(! current.equals(gameState.parent)){
+        while(! current.equals(gameNode.parent)){
                 current.parent.reward += current.reward;
                 current.parent.count++;
                 current = current.parent;
         }
     }
+
+    // make it truly abstract!!
     public Node findMax(){
         double ucb, maxUcb;
-        Node maxNode;
+        ucb = 0.0;
+        maxUcb = 0.0;
+        Node maxNode = current.children.get(0);
+
+        // always explore the Stand option
+        if (current.count < 1) {
+            return current.children.get(52);
+        }
+
         for(Node n : current.children){
-            ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n.parent.count)/n.count); //> CATCH COUNT COUNT == 0 AND N== 0
-            if(ucb > maxUcb){
-                maxNode = n;
-                maxUcb = ucb;
+            // null check - to not explore the cards that are already in the game
+            if (n != null) {
+                if (n.count < 1) {
+                    maxNode = n;
+                    break;
+                } else {
+                    ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n.parent.count)/n.count); //> CATCH COUNT COUNT == 0 AND N== 0
+                    if(ucb > maxUcb){
+                        maxNode = n;
+                        maxUcb = ucb;
+                    }
+                }
             }
         }
         return maxNode;
     }
-    public static State getRandomMove(State currentState) {
-        ArrayList<State> availMoves = findMoves(currentState);
-        return availMoves.get(new Random().nextInt(availMoves.size()));
-    }
-    abstract void resetCurrent(); // GO TO CURRENT STATE IN GAME
-    abstract ArrayList<State> findMoves(State currentState);
-    abstract boolean isGameOver(State currentState);
-    abstract long calcReward(State currentState);
-    public static void main(String[] args){
-    }
+    
+    // abstract void resetCurrent(); // GO TO CURRENT STATE IN GAME
+    abstract State getRandomMove(State state);
+    abstract boolean isEnd(State state);
+    abstract State[] findMoves(State state);
+    abstract double calcReward(State state);
+    // public static void main(String[] args){
+    // }
 }

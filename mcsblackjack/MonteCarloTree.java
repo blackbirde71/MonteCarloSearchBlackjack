@@ -51,6 +51,7 @@ public abstract class MonteCarloTree{
                 maxScore = score;
             }
         }
+        current = maxNode;
         return maxNode.state;
     }
     public void select(){
@@ -103,15 +104,12 @@ public abstract class MonteCarloTree{
         }
         return maxNode;
     }
-    public Node makeState(Long l){ // IGNORE
-        return new Node();
-    }
-    public static STATE getRandomMove(STATE currentState) {
-        ArrayList<STATE> availMoves = findMoves(currentState);
+    public static State getRandomMove(State currentState) {
+        ArrayList<State> availMoves = findMoves(currentState);
         return availMoves.get(new Random().nextInt(availMoves.size()));
     }
     abstract void resetCurrent(); // GO TO CURRENT STATE IN GAME
-    abstract ArrayList<STATE> findMoves(STATE currentState);
+    abstract ArrayList<State> findMoves(State currentState);
     abstract boolean isGameOver(State currentState);
     abstract long calcReward(State currentState);
     public static void main(String[] args){

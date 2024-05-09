@@ -98,7 +98,7 @@ public abstract class MonteCarloTree<State>{
     }
 
     public void backpropagate(){
-        while(! current.equals(gameNode.parent)){
+        while(current.parent != null){ //! current.equals(gameNode.parent)//! STARTS AT TOP
                 current.parent.reward += current.reward;
                 current.parent.count++;
                 current = current.parent;

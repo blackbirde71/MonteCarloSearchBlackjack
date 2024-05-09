@@ -16,16 +16,19 @@ public class Blackjack{
 		int[] dCards, pCards, cCards;
 		long stateNumber;
 		int remainder;
-		for(int i = 0; i < Math.pow(13,5)-1; i++){
+		for(int i = 0; i < Math.pow(13,15)-1; i++){
 			stateNumber = i;
+			//System.out.println(i);
+			//System.out.println(Math.round(Math.pow(13,14)));
 			for(int p = 14; p >= 0; p--){
+				tableMap[14-p] = Math.toIntExact(stateNumber / Math.round(Math.pow(13,p)));
 				remainder = Math.toIntExact(stateNumber % Math.round(Math.pow(13,p)));
-				tableMap[14-p] = remainder;
 				stateNumber -= remainder;
 			}
-			dCards = Arrays.copyOfRange(tableMap, 10, 5); //! Backwards?
-			pCards = Arrays.copyOfRange(tableMap, 5, 5);
-			cCards = Arrays.copyOfRange(tableMap, 0, 5);
+			//System.out.println(Arrays.toString(tableMap));
+			dCards = Arrays.copyOfRange(tableMap, 10, 14); //! Backwards?
+			pCards = Arrays.copyOfRange(tableMap, 5, 9);
+			cCards = Arrays.copyOfRange(tableMap, 0, 4);
 			table[0] = dCards;
 			table[1] = pCards;
 			table[2] = cCards;
@@ -41,4 +44,13 @@ public class Blackjack{
 		}
 		return stateNumber;
 	}
+	public static void main(String[] args){
+		Blackjack test = new Blackjack();
+		//int[][] testState = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
+		//test.hashState(testState);
+		for(int i = 0; i < Math.pow(13,10)-1; i++){
+
+		}
+		System.out.println("finish");
+    }
 }

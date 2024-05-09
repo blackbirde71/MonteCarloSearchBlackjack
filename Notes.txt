@@ -1,2 +1,5 @@
 To do:
-	- 
+	- Determine if it actually is a tree (for technicality purposes) (could be a DAG?) (consider bidirectionality)
+	- Fix move calculation to consolidate equivalent-move states
+	- Hash Table converting a hand of cards to a long state identification number
+	- Check that unusual starting state logic works

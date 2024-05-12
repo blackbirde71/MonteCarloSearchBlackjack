@@ -13,8 +13,8 @@ public class Blackjack{
 		
 	// }
 	public static void main(String[] args){
-		System.out.println(11);
-		int[] cards = new int[2];
+		System.out.println("START");
+		ArrayList<Integer> cards = new ArrayList<Integer>();
 		int EXPLORATION = 2;
 		int NUMITERATIONS = 100;
 
@@ -27,9 +27,9 @@ public class Blackjack{
 
 		int index = 0;
 
-		cards[index] = decklist.get(index);
+		cards.add(decklist.get(index));
 		index++;
-		cards[index] = decklist.get(index);
+		cards.add(decklist.get(index));
 		index++;
 
 		BlackjackState bjs = new BlackjackState(cards, false);

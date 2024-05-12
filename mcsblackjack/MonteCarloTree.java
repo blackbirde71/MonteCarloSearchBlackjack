@@ -44,9 +44,9 @@ public abstract class MonteCarloTree<State>{
     	root = new Node(initialState);
         current = new Node(initialState);
         gameNode = new Node(initialState);
-        System.out.println(root.equals(current));
-        System.out.println(root.equals(gameNode));
-        System.out.println(current.equals(gameNode));
+        // System.out.println(root.equals(current));
+        // System.out.println(root.equals(gameNode));
+        // System.out.println(current.equals(gameNode));
 
     }
 
@@ -59,12 +59,16 @@ public abstract class MonteCarloTree<State>{
     // }
 
     abstract int chooseMove();
-    public void select(){
+
+    public void select() {
+        System.out.println("selection reached:");
         current = gameNode;
         if(current.isChildless){
             if (current.count==0) {
+                System.out.println("count==0");
                 update();
             } else {
+                System.out.println("count!=0");
                 State[] availMoves = findMoves(current.state);
                 for(State s : availMoves){
                     Node newNode;
@@ -75,13 +79,17 @@ public abstract class MonteCarloTree<State>{
                         newNode = null;
                     }
                     current.children.add(newNode); // CONNECT PARENT POINTERS
-                    current.isChildless = false;
                 }
-                current = current.children.get(new Random().nextInt(current.children.size()));
+                current.isChildless = false;
+
                 // null check - to not explore the cards that are already in the game
-                while (current == null) {
-                    current = current.children.get(new Random().nextInt(current.children.size()));
+                Node newCurrent;
+                while (true) {
+                    // sometimes children is null
+                    newCurrent = current.children.get(new Random().nextInt(current.children.size()));
+                    if (newCurrent != null) break;
                 }
+                current = newCurrent;
                 update();
             }
         }
@@ -92,28 +100,36 @@ public abstract class MonteCarloTree<State>{
 
     public void update(){
         for(int i=0; i<NUMITERATIONS; i++){
-            current.reward += rollout(current.state);
+            double newReward = rollout(current.state);
+            current.reward += newReward;
+            // System.out.print("rollout result: ");
+            // System.out.println(newReward);
         }
         backpropagate();
     }
 
     public double rollout(State simState){
         if(isEnd(simState)){
+            // System.out.print("calc reward reached: ");
+            // System.out.println(calcReward(simState));
             return calcReward(simState);
         }
         simState = getRandomMove(simState);
+        // System.out.println("rollout cont'd");
         return rollout(simState);
     }
 
     public void backpropagate(){
         while (true) { //! current.equals(gameNode.parent)//! STARTS AT TOP // current.parent != null
-            System.out.println("backprop reached");
-            System.out.println(current.state == null);
+            // System.out.println("backprop reached");
+            // System.out.println(current.state == null);
             if (!current.equals(root)) {
                 current.parent.reward += current.reward;
             }
             current.count++;
             if (current.equals(gameNode)) {
+                // System.out.println("so:");
+                // System.out.println(current.equals(gameNode));
                 break;
             }
             current = current.parent;

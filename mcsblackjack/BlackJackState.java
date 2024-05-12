@@ -2,7 +2,7 @@ package mcsblackjack;
  import java.util.*; 
 
 public class BlackjackState {
-	public int[] cards = new int[5];
+	public ArrayList<Integer> cards = new ArrayList<Integer>();
 	public boolean isEnd = false;
 	public int score;
 	public boolean isStanding;
@@ -20,10 +20,16 @@ public class BlackjackState {
 				maxScore = i;
 			}
 		}
+		// System.out.print("state score: ");
+		// System.out.println(possibleScores.toString());
+		// System.out.print("state deck: ");
+		// System.out.println(cards.toString());
+		// System.out.print("isEnd ");
+		// System.out.println(isEnd);
 		return maxScore;
 	}
 
-	public void helper(int[] cards, int numCards, int currScore, int index, ArrayList<Integer> possibleScores) {
+	public void helper(ArrayList<Integer> cards, int numCards, int currScore, int index, ArrayList<Integer> possibleScores) {
 		// System.out.println(numCards);
 		// checking if you have 5 cards
 		if (numCards > 4) {
@@ -33,7 +39,7 @@ public class BlackjackState {
 		if (index == numCards-1) {
 			possibleScores.add(currScore);
 				// the last four cards are aces
-				if (cards[index] > 47) {
+				if (cards.get(index) > 47) {
 				// ace is 11
 				possibleScores.add(currScore+1);
 				// ace is 1
@@ -45,14 +51,14 @@ public class BlackjackState {
 
 
 
-		if (cards[index] > 47) {
+		if (cards.get(index) > 47) {
 			// ace is 11
 			helper(cards, numCards, currScore+11, index+1, possibleScores);
 			// ace is 1
 			helper(cards, numCards, currScore+1, index+1, possibleScores);
 		}
 
-		int value = cards[index] / 13 + 2;
+		int value = cards.get(index) / 13 + 2;
 
 		if (value > 10) {
 			helper(cards, numCards, currScore+10, index+1, possibleScores);
@@ -62,23 +68,29 @@ public class BlackjackState {
 	}
 
 	public boolean equals(BlackjackState a) {
-		if (Arrays.equals(this.cards, a.cards) && this.isStanding == a.isStanding) return true;
+		if (this.cards.equals(a.cards) && this.isStanding == a.isStanding) return true;
 		return false;
 	}
 
-	BlackjackState(int[] arrayOfCards, boolean isStanding) {
-		int i = 0;
-		int score = 0;
+	BlackjackState(ArrayList<Integer> arrayOfCards, boolean isStanding) {
+		score = 0;
 		for (int c : arrayOfCards) {
-			cards[i] = c;
-			i++;
+			cards.add(c);
 		}
-		int numCards = arrayOfCards.length;
+		numCards = arrayOfCards.size();
+
+		this.isStanding = isStanding;
+
+		if (isStanding) isEnd = true;
+		if (numCards >= 5) isEnd = true;
+		if (score > 20) isEnd = true;
 
 		score = calcScore(numCards);
-		this.isStanding = isStanding;
-		if (isStanding) isEnd = true;
-		if (numCards == 5) isEnd = true;
-		if (score > 20) isEnd = true;
+		if (isEnd) {
+			// System.out.println("end score: ");
+			// System.out.println(score);
+
+			System.out.println(cards.toString());
+		}
 	}
 }

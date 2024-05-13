@@ -177,7 +177,6 @@ public class Blackjack{
 		System.out.println("game over");
 		displayEndTable();
 		displayResults();
-
 	}
 	public void runGame(){
 		System.out.println("round " + roundNum);

@@ -130,44 +130,44 @@ public class Blackjack{
 			pTotal += Card.getRank(c.rank);
 		}
 		if(dTotal>21){
-			dEnd = "BUSTED"
+			dEnd = "BUSTED";
 			dTotal = 0;
 		}
 		else{
-			dEnd = "STANDING"
+			dEnd = "STANDING";
 		}
 		if(pTotal>21){
-			pEnd = "BUSTED"
+			pEnd = "BUSTED";
 			pTotal = -1;
 		}
 		else{
-			pEnd = "STANDING"
+			pEnd = "STANDING";
 		}
 
 		if(bjs.current.isEnd){
-			cEnd = "BUSTED"
+			cEnd = "BUSTED";
 			cTotal = -1;
 		}
 		else{
-			cEnd = "STANDING"
+			cEnd = "STANDING";
 		}
 		if(pTotal>dTotal){
-			pResult = "WIN"
+			pResult = "WIN";
 		}
 		else if(pTotal=dTotal){
-			pResult = "TIE"
+			pResult = "TIE";
 		}
 		else{
-			pResult = "LOSS"
+			pResult = "LOSS";
 		}
 		if(cTotal>dTotal){
-			cResult = "WIN"
+			cResult = "WIN";
 		}
 		else if(cTotal=dTotal){
-			cResult = "TIE"
+			cResult = "TIE";
 		}
 		else{
-			cResult = "LOSS"
+			cResult = "LOSS";
 		}
 		System.out.println("DEALER " + dEnd + " ");
 		System.out.println("COMPUTER " + cEnd + " " + cResult);

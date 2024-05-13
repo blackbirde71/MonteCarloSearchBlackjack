@@ -131,36 +131,50 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         	Node n = gameNode.children.get(i);
         	// null check against skipped cards
             if (n != null) {
+            	// System.out.print(" | reward: ");
+    			// System.out.println(n.reward / n.count);
             	totalHitScore += n.reward / n.count;
             }
         }
         totalHitScore = totalHitScore / 52;
 
-        double standScore = gameNode.children.get(52).reward;
+        double standScore = gameNode.children.get(52).reward / gameNode.children.get(52).count;
+        System.out.println(totalHitScore);
+        System.out.println(standScore);
 
         if (totalHitScore > standScore) {
+        	System.out.println("HIT");
         	return -1;
         } else {
+        	System.out.println("STAND");
         	return gameNode.state.score;
         }
     }
 
     public void printNodes(Node n) {
-    	System.out.println(current.children);
-    	System.out.println(n.reward);
+    	// System.out.println("root count");
+		// System.out.println(n.count);
+		// System.out.println("root reward");
+    	// System.out.println(n.reward);
     	for (Node a : n.children) {
     		if (a != null) {
-    			printNodes(a);
+    			System.out.print(a.children);
+    			System.out.print("count: ");
+    			System.out.print(a.count);
+    			System.out.print(" | reward: ");
+    			System.out.println(a.reward / a.count);
     		}
     	}
+    	// System.out.println(n.children.get(51).state.score);
     }
 
     public int play() {
-    	for (int i=0; i<10; i++) {
+    	for (int i=0; i<500; i++) {
+    		// System.out.println("new select");
     		select();
     	}
-    	// Node n = root;
-    	// printNodes(n);
+    	Node n = root;
+    	printNodes(n);
     	return chooseMove();
 
     	// System.out.println(current.reward);

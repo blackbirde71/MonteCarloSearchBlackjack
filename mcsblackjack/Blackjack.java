@@ -16,7 +16,7 @@ public class Blackjack{
 		System.out.println("START");
 		ArrayList<Integer> cards = new ArrayList<Integer>();
 		int EXPLORATION = 2;
-		int NUMITERATIONS = 100;
+		int NUMITERATIONS = 120;
 
 		Integer[] deck = new Integer[52];
 		for (int i=0; i<52; i++) {
@@ -27,23 +27,28 @@ public class Blackjack{
 
 		int index = 0;
 
-		cards.add(decklist.get(index));
+		cards.add(2);
 		index++;
-		cards.add(decklist.get(index));
+		cards.add(3);
 		index++;
 
 		BlackjackState bjs = new BlackjackState(cards, false);
 
-		BlackjackTree bjt = new BlackjackTree(19, cards, EXPLORATION, NUMITERATIONS);
+		int dealerCard = decklist.get(index);
+		index++;
+		System.out.print("dealer: ");
+		System.out.println(dealerCard);
+		BlackjackTree bjt = new BlackjackTree(dealerCard, cards, EXPLORATION, NUMITERATIONS);
 		int result = -1;
-		while (result < 0) {
-			result = bjt.play();
-			if (result < 0) {
-				bjt.updateGameState(decklist.get(index));
-				index++;
-			}
-		}
-		System.out.println(result);
+		result = bjt.play();
+		// while (result < 0) {
+		// 	result = bjt.play();
+		// 	if (result < 0) {
+		// 		bjt.updateGameState(decklist.get(index));
+		// 		index++;
+		// 	}
+		// }
+		// System.out.println(result);
 
     }
 }

@@ -42,8 +42,8 @@ public abstract class MonteCarloTree<State>{
         this.NUMITERATIONS = NUMITERATIONS;
         this.EXPLORATION = EXPLORATION;
     	root = new Node(initialState);
-        current = new Node(initialState);
-        gameNode = new Node(initialState);
+        current = root;
+        gameNode = root;
         // System.out.println(root.equals(current));
         // System.out.println(root.equals(gameNode));
         // System.out.println(current.equals(gameNode));
@@ -61,14 +61,14 @@ public abstract class MonteCarloTree<State>{
     abstract int chooseMove();
 
     public void select() {
-        System.out.println("selection reached:");
+        // System.out.println("selection reached:");
         current = gameNode;
         if(current.isChildless){
             if (current.count==0) {
-                System.out.println("count==0");
+                // System.out.println("count==0");
                 update();
             } else {
-                System.out.println("count!=0");
+                // System.out.println("count!=0");
                 State[] availMoves = findMoves(current.state);
                 for(State s : availMoves){
                     Node newNode;
@@ -82,31 +82,34 @@ public abstract class MonteCarloTree<State>{
                 }
                 current.isChildless = false;
 
-                // null check - to not explore the cards that are already in the game
-                Node newCurrent;
-                while (true) {
-                    // sometimes children is null
-                    newCurrent = current.children.get(new Random().nextInt(current.children.size()));
-                    if (newCurrent != null) break;
-                }
-                current = newCurrent;
+                // // null check - to not explore the cards that are already in the game
+                // Node newCurrent;
+                // while (true) {
+                //     // sometimes children is null
+                //     newCurrent = current.children.get(new Random().nextInt(current.children.size()));
+                //     if (newCurrent != null) break;
+                // }
+
+                // always explore the stand option first
+                current = current.children.get(52);
                 update();
             }
         }
         else{
             current = findMax();
+            update();
         }
     } 
 
     public void update(){
         for(int i=0; i<NUMITERATIONS; i++){
-            double newReward = rollout(current.state);
+            double newReward = rollout(current.state) / NUMITERATIONS;
             // System.out.print("rollout result: ");
             // System.out.println(newReward);
             current.reward += newReward;
         }
-        System.out.print("current's reward ");
-        System.out.println(current.reward);
+        // System.out.print("current's reward ");
+        // System.out.println(current.reward);
         backpropagate();
     }
 
@@ -141,19 +144,23 @@ public abstract class MonteCarloTree<State>{
 
     // make it truly abstract!!
     public Node findMax(){
+        // System.out.println("findmax:");
         double ucb, maxUcb;
         ucb = 0.0;
         maxUcb = 0.0;
         Node maxNode = current.children.get(0);
 
         // always explore the Stand option
-        if (current.count < 1) {
-            return current.children.get(52);
-        }
+
+        // if (current.count < 2) {
+        //     System.out.println("STAND");
+        //     return current.children.get(52);
+        // }
 
         for(Node n : current.children){
             // null check - to not explore the cards that are already in the game
             if (n != null) {
+                // for the first 52 iterations, this is basically going from 0 to 51
                 if (n.count < 1) {
                     maxNode = n;
                     break;

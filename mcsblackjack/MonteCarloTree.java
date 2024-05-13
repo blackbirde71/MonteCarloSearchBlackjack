@@ -2,21 +2,22 @@
 * Abstract class for Monte Carlo Tree
 *
 * Inner class "Node"
-*	Needs to store:
-*		- State of the table
-*		- Reward - r_i - Cumulative rewards of associated leaf nodes
-*		- Number of states - n_i - Number of associated leaf nodes
+*   Needs to store:
+*       - State of the table
+*       - Reward - r_i - Cumulative rewards of associated leaf nodes
+*       - Number of states - n_i - Number of associated leaf nodes
 */
+
 package mcsblackjack;
 import java.util.*; 
 public abstract class MonteCarloTree<State>{
     public final float EXPLORATION;
     public final int NUMITERATIONS;
-	public Node root;
+    public Node root;
     public Node current;
     public Node gameNode;
 
-	public class Node{
+    public class Node{
         public ArrayList<Node> children;
         public Node parent;
         public boolean isChildless;
@@ -41,7 +42,7 @@ public abstract class MonteCarloTree<State>{
     MonteCarloTree(State initialState, int EXPLORATION, int NUMITERATIONS){
         this.NUMITERATIONS = NUMITERATIONS;
         this.EXPLORATION = EXPLORATION;
-    	root = new Node(initialState);
+        root = new Node(initialState);
         current = new Node(initialState);
         gameNode = new Node(initialState);
         // System.out.println(root.equals(current));

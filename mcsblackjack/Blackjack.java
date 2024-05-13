@@ -3,53 +3,57 @@
 	- Blackjack player vs computer game
 	- Command line interface
 */
-
 package mcsblackjack;
 import java.util.*;
-
 public class Blackjack{
-	public BlackjackState state;
-	// public Blackjack() {
-		
-	// }
-	public static void main(String[] args){
-		System.out.println("START");
-		ArrayList<Integer> cards = new ArrayList<Integer>();
-		int EXPLORATION = 2;
-		int NUMITERATIONS = 100;
-
+	public int EXPLORATION;
+    public int NUMITERATIONS;
+    public BlackjackState bjs;
+    public BlackjackTree bjt;
+    public Integer[] deck;
+    public static HashMap<Integer, String> suit;
+    public static HashMap<Integer, String> rank;
+	public Blackjack() {
+		this.suit = new HashMap<Integer, String> ();
+		this.rank = new HashMap<Integer, String> ();
+		learnCards();
+		this.EXPLORATION = 2;
+		this.NUMITERATIONS = 100;
+	}
+	public void learnCards(){
+		suit.put(0, "♣");
+		suit.put(1, "♦");
+		suit.put(2, "♥");
+		suit.put(3, "♠");
+		rank.put(9, "J");
+		rank.put(10, "Q");
+		rank.put(11, "K");
+		rank.put(12, "A");
+	}
+	public void dealCards(){
 		Integer[] deck = new Integer[52];
 		for (int i=0; i<52; i++) {
 			deck[i] = i;
 		}
 		List<Integer> decklist = Arrays.asList(deck);
 		Collections.shuffle(decklist);
-
+		Card[] dHand, pHand;
+		ArrayList<Integer> cHand = new ArrayList<Integer>();
 		int index = 0;
-
-		cards.add(decklist.get(index));
-		index++;
-		cards.add(decklist.get(index));
-		index++;
-
-		BlackjackState bjs = new BlackjackState(cards, false);
-
-		BlackjackTree bjt = new BlackjackTree(19, cards, EXPLORATION, NUMITERATIONS);
-		int result = -1;
-		while (result < 0) {
-			result = bjt.play();
-			if (result < 0) {
-				bjt.updateGameState(decklist.get(index));
-				index++;
-			}
-		}
-		System.out.println(result);
-
+		dHand[0] = new Card(Integer.intValue(decklist.get(index++))); //! check functionality of inline post-increment
+		dHand[1] = new Card(Integer.intValue(decklist.get(index++)));
+		pHand[0] = new Card(Integer.intValue(decklist.get(index++)));
+		pHand[1] = new Card(Integer.intValue(decklist.get(index++)));
+		cHand.add(decklist.get(index++));
+		cHand.add(decklist.get(index++));
+		this.bjs = new BlackjackState(cHand, false);
+		this.bjt = new BlackjackTree(dHand[0].cardInt, cHand, this.EXPLORATION, this.NUMITERATIONS);
+	}
+	public void runGame(){
+		dealerDraw();
+	}
+	public static void main(String[] args){
+		dealCards();
+		runGame();
     }
 }
-// class bj extends Blackjack{
-// 	public bj(){int state = 2;}
-// 	public static void main(String[] args){
-// 	System.out.println(state);
-//     }
-// }

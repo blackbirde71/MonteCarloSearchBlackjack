@@ -6,10 +6,12 @@ import java.util.ArrayList;
 class Card {
 	public final int suit;
 	public final int rank;
+	public final int cardInt;
 
-	public Card(int suit, int rank) {
-		this.suit = suit;			
-		this.rank = rank;
+	public Card(int cardInt) {
+		this.cardInt = cardInt;
+		this.suit = cardInt % 4;			
+		this.rank = cardInt / 4;
 	}
 }
 
@@ -34,10 +36,10 @@ class Hand {
 		suit.put(2, "♥");
 		suit.put(3, "♠");
 
-		rank.put(11, "J");
-		rank.put(12, "Q");
-		rank.put(13, "K");
-		rank.put(14, "A");
+		rank.put(9, "J");
+		rank.put(10, "Q");
+		rank.put(11, "K");
+		rank.put(12, "A");
 	}
 
 	public static String getSuit(int i) {

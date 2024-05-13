@@ -4,7 +4,7 @@
 	- Command line interface
 */
 
-package mcsblackjack;
+package mcsblackjack; 
 import java.util.*;
 
 public class Blackjack{

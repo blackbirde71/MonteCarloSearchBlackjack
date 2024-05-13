@@ -101,16 +101,18 @@ public abstract class MonteCarloTree<State>{
     public void update(){
         for(int i=0; i<NUMITERATIONS; i++){
             double newReward = rollout(current.state);
-            current.reward += newReward;
             // System.out.print("rollout result: ");
             // System.out.println(newReward);
+            current.reward += newReward;
         }
+        System.out.print("current's reward ");
+        System.out.println(current.reward);
         backpropagate();
     }
 
     public double rollout(State simState){
         if(isEnd(simState)){
-            // System.out.print("calc reward reached: ");
+            // System.out.print("rollout result: ");
             // System.out.println(calcReward(simState));
             return calcReward(simState);
         }
@@ -124,6 +126,7 @@ public abstract class MonteCarloTree<State>{
             // System.out.println("backprop reached");
             // System.out.println(current.state == null);
             if (!current.equals(root)) {
+                // System.out.println("not equals root");
                 current.parent.reward += current.reward;
             }
             current.count++;

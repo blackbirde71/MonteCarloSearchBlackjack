@@ -6,7 +6,7 @@ import java.util.*;
 
 public class BlackjackTree extends MonteCarloTree<BlackjackState> {
 	// public Node root;
-    // public Node current;
+    // public Node current; 
     // public Node gameNode;
 
 	public int dealerCard;
@@ -50,52 +50,60 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
 	}
 
 	public BlackjackState getRandomMove(BlackjackState state) {
-        int randNum;
-
-        // selects a random card to simulate
-        while (true) {
-        	int num = new Random().nextInt(53);
-
-        	// skip through the cards that you know are in the game
-        	boolean shouldSkip = false;
-
-			// comparing to the state's hand
-			for (int j=0; j<state.numCards; j++) {
-				if (num == state.cards.get(j)) {
-					shouldSkip = true;
-					break;
-				}
-			}
-			// comparing to the dealer's card
-			if (num == dealerCard) {
-				shouldSkip = true;
-			}
-
-			if (shouldSkip) {
-				continue;
-			} else {
-				randNum = num;
-				break;
-			}
-        }
-
-        ArrayList<Integer> currentCards = new ArrayList<Integer>(state.cards);
-        if (randNum != 52) {
-      		currentCards.add(randNum);
-        	return new BlackjackState(currentCards, false);
-        } else {
+		Random r = new Random();
+        
+        // biasing the algorithm so it explores the stand option more often
+        if (r.nextInt(2) == 0) {
+        	ArrayList<Integer> currentCards = new ArrayList<Integer>(state.cards);
         	return new BlackjackState(currentCards, true);
+        } else {
+        	int randNum;
+    
+            // selects a random card to simulate
+            while (true) {
+            	int num = r.nextInt(52);
+    
+            	// skip through the cards that you know are in the game
+            	boolean shouldSkip = false;
+    
+    			// comparing to the state's hand
+    			for (int j=0; j<state.numCards; j++) {
+    				if (num == state.cards.get(j)) {
+    					shouldSkip = true;
+    					break;
+    				}
+    			}
+    			// comparing to the dealer's card
+    			if (num == dealerCard) {
+    				shouldSkip = true;
+    			}
+    
+    			if (shouldSkip) {
+    				continue;
+    			} else {
+    				randNum = num;
+    				break;
+    			}
+            }
+    
+            ArrayList<Integer> currentCards = new ArrayList<Integer>(state.cards);
+            if (randNum != 52) {
+          		currentCards.add(randNum);
+            	return new BlackjackState(currentCards, false);
+            } else {
+            	return new BlackjackState(currentCards, true);
+            }
         }
     }
 
     //make sure that you cannot draw over your fifth card
 
     public double calcReward(BlackjackState state) {
-    	int score = state.score;
+    	double score = state.score;
     	if (score > 21) return 0.0;
     	if (state.numCards == 5) return 1.0;
     	// System.out.print("calcReward score: ");
-    	// System.out.println(state.score);
+    	// System.out.println(score / 21);
     	return score / 21; 
     }
 
@@ -148,14 +156,14 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     }
 
     public int play() {
-    	for (int i=0; i<2; i++) {
+    	for (int i=0; i<10; i++) {
     		select();
     	}
     	// Node n = root;
     	// printNodes(n);
-    	// return chooseMove();
+    	return chooseMove();
 
-    	// System.out.println(root.reward);
-    	return 1;
+    	// System.out.println(current.reward);
+    	// return 1;
     }
 }

@@ -27,9 +27,9 @@ public class Blackjack{
 
 		int index = 0;
 
-		cards.add(2);
+		cards.add(12);
 		index++;
-		cards.add(3);
+		cards.add(20);
 		index++;
 
 		BlackjackState bjs = new BlackjackState(cards, false);

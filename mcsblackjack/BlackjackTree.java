@@ -96,6 +96,57 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         }
     }
 
+    public Node findMax(){
+        // System.out.println("findmax:");
+        double ucb, maxUcb;
+        ucb = 0.0;
+        maxUcb = 0.0;
+        Node maxNode = current.children.get(0);
+
+        // always explore the Stand option
+
+        // if (current.count < 2) {
+        //     System.out.println("STAND");
+        //     return current.children.get(52);
+        // }
+
+        // for the first 52 iterations, this is basically going from 0 to 51
+        // we made changes to the classic monte carlo model because we don't it 
+        // to go sequentially and thus bias it to the first few cards, so
+        // we select randomly
+        // 52 cards - # in hand - 1 dealer card + 1 stand + 1 rollout directly from the node
+        // ^ this is very important - overflow otherwise
+        if (current.count < (52 - current.state.numCards - 1 + 1 + 1)) {
+            Random r = new Random();
+            int index = r.nextInt(52);
+            while (true) {
+            	// System.out.println(index);
+                Node c = current.children.get(index % 52);
+                if (c != null && c.count == 0) {
+                    maxNode = c;
+                    break;
+                }
+                index++;
+            }
+        }
+        // if all the children have been explored at least once, then select by ucb 
+        else {
+            // skip the stand option
+            for(int i=0; i<52; i++) {
+            	Node n = current.children.get(i);
+	            // null check - to not explore the cards that are already in the game
+	            if (n != null) {
+	                ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n.parent.count)/n.count); //> CATCH COUNT COUNT == 0 AND N== 0
+	                if (ucb > maxUcb) {
+	                    maxNode = n;
+	                    maxUcb = ucb;
+	                }
+	            }
+	        }
+        }
+        return maxNode;
+    }
+
     //make sure that you cannot draw over your fifth card
 
     public double calcReward(BlackjackState state) {
@@ -139,7 +190,9 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         totalHitScore = totalHitScore / 52;
 
         double standScore = gameNode.children.get(52).reward / gameNode.children.get(52).count;
+        System.out.print("Hit score: ");
         System.out.println(totalHitScore);
+        System.out.print("Stand score: ");
         System.out.println(standScore);
 
         if (totalHitScore > standScore) {
@@ -152,14 +205,14 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     }
 
     public void printNodes(Node n) {
-    	// System.out.println("root count");
-		// System.out.println(n.count);
-		// System.out.println("root reward");
-    	// System.out.println(n.reward);
+    	System.out.println("root count");
+		System.out.println(n.count);
+		System.out.println("root reward");
+    	System.out.println(n.reward);
     	for (Node a : n.children) {
     		if (a != null) {
-    			System.out.print(a.children);
-    			System.out.print("count: ");
+    			// System.out.print(a.children.size());
+    			System.out.print(" count: ");
     			System.out.print(a.count);
     			System.out.print(" | reward: ");
     			System.out.println(a.reward / a.count);
@@ -171,10 +224,10 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     public int play() {
     	for (int i=0; i<500; i++) {
     		// System.out.println("new select");
-    		select();
+    		select(gameNode);
     	}
     	Node n = root;
-    	printNodes(n);
+    	printNodes(n.children.get(30));
     	return chooseMove();
 
     	// System.out.println(current.reward);

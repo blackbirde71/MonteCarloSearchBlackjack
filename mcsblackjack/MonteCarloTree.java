@@ -60,9 +60,9 @@ public abstract class MonteCarloTree<State>{
 
     abstract int chooseMove();
 
-    public void select() {
+    public void select(Node n) {
         // System.out.println("selection reached:");
-        current = gameNode;
+        current = n;
         if(current.isChildless){
             if (current.count==0) {
                 // System.out.println("count==0");
@@ -97,7 +97,8 @@ public abstract class MonteCarloTree<State>{
         }
         else{
             current = findMax();
-            update();
+            select(current);
+            // update();
         }
     } 
 
@@ -143,38 +144,7 @@ public abstract class MonteCarloTree<State>{
     }
 
     // make it truly abstract!!
-    public Node findMax(){
-        // System.out.println("findmax:");
-        double ucb, maxUcb;
-        ucb = 0.0;
-        maxUcb = 0.0;
-        Node maxNode = current.children.get(0);
-
-        // always explore the Stand option
-
-        // if (current.count < 2) {
-        //     System.out.println("STAND");
-        //     return current.children.get(52);
-        // }
-
-        for(Node n : current.children){
-            // null check - to not explore the cards that are already in the game
-            if (n != null) {
-                // for the first 52 iterations, this is basically going from 0 to 51
-                if (n.count < 1) {
-                    maxNode = n;
-                    break;
-                } else {
-                    ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n.parent.count)/n.count); //> CATCH COUNT COUNT == 0 AND N== 0
-                    if(ucb > maxUcb){
-                        maxNode = n;
-                        maxUcb = ucb;
-                    }
-                }
-            }
-        }
-        return maxNode;
-    }
+    abstract Node findMax();
     
     // abstract void resetCurrent(); // GO TO CURRENT STATE IN GAME
     abstract State getRandomMove(State state);

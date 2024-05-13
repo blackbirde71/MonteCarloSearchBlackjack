@@ -32,7 +32,7 @@ public class Blackjack{
 		this.pDone = false;
 	}
 	public void learnCards(){
-		suit.put(0, "♣");
+		suit.put(0, "♣"); //? Necessary?
 		suit.put(1, "♦");
 		suit.put(2, "♥");
 		suit.put(3, "♠");
@@ -78,13 +78,13 @@ public class Blackjack{
 	}
 	public void cTurn(){
 		if(! bjt.current.isStanding){
-			String cMove = bjt.chooseMove(); //> IMPORTANT: Change .chooseMove() to return "HIT" or "STAND" string
+			String cMove = bjt.chooseMove();
 			System.out.println("COMPUTER " + cMove);
 			if(cMove == "STAND"){
 				cDone = true;
 			}
-			else if(bjt.current.isEnd){
-				System.out.println("COMPUTER BUST"); //> IMPORTANT: Change .isEnd to only be true when the computer busts, not when standing
+			else if(bjt.current.isEnd && !bjt.current.isStanding){
+				System.out.println("COMPUTER BUST");
 				cDone = true;
 			}
 		}
@@ -112,11 +112,29 @@ public class Blackjack{
 			}
 		}
 	}
-	public void displayTable(){
-		//> IMPLEMENT: Print all hands, with secret cards displaying their backside
+	public void displayTable(){ //> Combine with displayEndTable()
+		Card[] cHandArray = new Card[5];
+		for(int i = 0; i<5; i++){
+			cHandArray[i] = new Card(cHand.get(i));
+		}
+		Hand cCards = new Hand(cHandArray, HandType.COMPUTER);
+		Hand dCards = new Hand(dHand, HandType.DEALER);
+		Hand pCards = new Hand(pHand, HandType.PLAYER);
+		System.out.println(cCards.toString());
+		System.out.println(dCards.toString());
+		System.out.println(pCards.toString());
 	}
 	public void displayEndTable(){
-		//> IMPLEMENT: Print all hands, with all cards face-up (game is over)
+		Card[] cHandArray = new Card[5];
+		for(int i = 0; i<5; i++){
+			cHandArray[i] = new Card(cHand.get(i));
+		}
+		Hand cCards = new Hand(cHandArray, HandType.COMPUTER);
+		Hand dCards = new Hand(dHand, HandType.COMPUTER);
+		Hand pCards = new Hand(pHand, HandType.COMPUTER);
+		System.out.println(cCards.toString());
+		System.out.println(dCards.toString());
+		System.out.println(pCards.toString());
 	}
 	public void displayResults(){
 		String dEnd, pEnd, cEnd;
@@ -144,7 +162,7 @@ public class Blackjack{
 			pEnd = "STANDING";
 		}
 
-		if(bjs.current.isEnd){
+		if(bjt.current.isEnd && ! bjt.current.isStanding){
 			cEnd = "BUSTED";
 			cTotal = -1;
 		}

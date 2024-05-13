@@ -83,7 +83,7 @@ public class BlackjackState {
 
 		if (isStanding) isEnd = true;
 		if (numCards >= 5) isEnd = true;
-		if (score > 20) isEnd = true;
+		if (score > 21) isEnd = true;
 
 		score = calcScore(numCards);
 		if (isEnd) {

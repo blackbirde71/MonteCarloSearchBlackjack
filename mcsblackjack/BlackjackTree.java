@@ -131,9 +131,9 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         double standScore = gameNode.children.get(52).reward;
 
         if (totalHitScore > standScore) {
-        	return -1;
+        	return "HIT";
         } else {
-        	return gameNode.state.score;
+        	return "STAND";
         }
     }
 

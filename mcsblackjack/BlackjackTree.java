@@ -5,9 +5,6 @@ package mcsblackjack;
 import java.util.*; 
 
 public class BlackjackTree extends MonteCarloTree<BlackjackState> {
-	// public Node root;
-    // public Node current; 
-    // public Node gameNode;
 
 	public int dealerCard;
 
@@ -21,8 +18,6 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
 
         for(int i=0; i<NUMITERATIONS; i++){
             newReward += rollout(current.state);
-            // System.out.print("rollout result: ");
-            // System.out.println(rollout(current.state));
         }
 
         newReward /= NUMITERATIONS;
@@ -129,19 +124,45 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         }
     }
 
+	public double max(double a, double b) {
+        if (a > b) {
+            return a;
+        } else {
+            return b;
+        }
+    }
+
+    public void backpropagate(double addedReward, BackPropType backPropType) {
+        BackPropType bct = backPropType;
+        while (true) {
+            if (!current.equals(root)) {
+                if (bct == BackPropType.STAND) {
+                    current.parent.rewardStand += addedReward;
+                    // STAND only applies the first time
+                    bct = BackPropType.HIT;
+                } else {
+                    current.parent.rewardHit+= addedReward;
+                }
+                if (current.parent.count == 0) {
+                    System.out.println("ISSUE WITH count = 0");
+                }
+                // count is not updated yet
+                current.parent.reward = (current.parent.count + 1) * max(current.parent.rewardHit / current.parent.count, current.parent.rewardStand);
+            }
+            current.count++;
+            if (current.equals(gameNode)) {
+                break;
+            }
+            current = current.parent;
+        }
+    }
+
     public Node findMax(){
-        // System.out.println("findmax:");
+
         double ucb, maxUcb;
         ucb = 0.0;
         maxUcb = 0.0;
         Node maxNode = current.children.get(0);
-
-        // always explore the Stand option
-
-        // if (current.count < 2) {
-        //     System.out.println("STAND");
-        //     return current.children.get(52);
-        // }
 
         // for the first 52 iterations, this is basically going from 0 to 51
         // we made changes to the classic monte carlo model because we don't it 
@@ -167,7 +188,6 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
             // skip the stand option
             for(int i=0; i<52; i++) {
             	Node n = current.children.get(i);
-	            // null check - to not explore the cards that are already in the game
 	            if (n != null) {
 	                ucb = n.reward / n.count + EXPLORATION * Math.sqrt(Math.log(n.parent.count)/n.count); //> CATCH COUNT COUNT == 0 AND N== 0
 	                if (ucb > maxUcb) {
@@ -180,12 +200,8 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         return maxNode;
     }
 
-    //make sure that you cannot draw over your fifth card
-
     public double calcReward(BlackjackState state) {
     	double score = state.score;
-    	// System.out.print("calcReward score: ");
-    	// System.out.println(score / 21);
     	return score / 21; 
     }
 
@@ -194,7 +210,6 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     }
 
     public static void main(String[] args){
-    	// System.out.println(11);
     }
 
     // 0-51 for cards, 52 for standing
@@ -202,15 +217,11 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     	gameNode = gameNode.children.get(newCard);
     }
 
-    public int chooseMove() {
+    public String chooseMove() {
         double totalHitScore = 0.0;
 
         for(Node n : gameNode.children) {
-        	// Node n = gameNode.children.get(i);
-        	// null check against skipped cards
             if (n != null) {
-            	// System.out.print(" | reward: ");
-    			// System.out.println(n.reward / n.count);
             	totalHitScore += n.reward / n.count;
             }
         }
@@ -224,10 +235,6 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         } else {
         	standScore = gameNode.reward;
         }
-        System.out.print("Hit score: ");
-        System.out.println(totalHitScore);
-        System.out.print("Stand score: ");
-        System.out.println(standScore);
 
         if (totalHitScore > standScore) {
         	return "HIT";
@@ -236,61 +243,11 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         }
     }
 
-    public void printNodes(Node n) {
-    	double sum = 0.0;
-    	System.out.println("node isEnd:");
-		System.out.println(isEnd(n.state));
-    	System.out.println("root count");
-		System.out.println(n.count);
-		System.out.println("root reward");
-    	System.out.println(n.reward);
-    	for (Node a : n.children) {
-    		if (a != null) {
-    			// System.out.print(a.children.size());
-    			sum += a.reward;
-    			System.out.print(" count: ");
-    			System.out.print(a.count);
-    			System.out.print(" | reward: ");
-    			System.out.println(a.reward / a.count);
-    			// System.out.println(a.state.cards.toString());
-    			// System.out.println(a.state.score);
-    		}
-    	}
-    	System.out.print("sum: ");
-    	System.out.println(sum);
-    	// System.out.println(n.children.get(51).state.score);
-    }
-
-    public int play() {
-    	for (int i=0; i<100; i++) {
-    		// System.out.println("new select");
+    public String play() {
+    	for (int i=0; i<1000; i++) {
     		select(gameNode);
     	}
-    	// Node n = root.children.get(0);
-    	// for (Node c : root.children) {
-    	// 	if (c != null && c.reward > n.reward) {
-    	// 		n = c;
-    	// 	}
-    	// }
-    	// Node n1 = n.children.get(0);
-    	// for (Node c : n.children) {
-    	// 	if (c != null && c.reward > n1.reward) {
-    	// 		n1 = c;
-    	// 	}
-    	// }
-    	// Node n2 = n1.children.get(0);
-    	// for (Node c : n1.children) {
-    	// 	if (c != null && c.reward > n2.reward) {
-    	// 		n2 = c;
-    	// 	}
-    	// }
-    	// printNodes(root);
 
-    	System.out.println(gameNode.state.cards.toString());
-    	System.out.println(gameNode.state.score);
     	return chooseMove();
-
-    	// System.out.println(current.reward);
-    	// return 1;
     }
 }

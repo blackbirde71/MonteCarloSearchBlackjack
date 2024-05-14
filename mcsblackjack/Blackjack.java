@@ -74,12 +74,14 @@ public class Blackjack{
 	}
 	public void cTurn(){
 		if(!cDone){
-			String cMove = bjt.chooseMove();
+			String cMove = bjt.play();
 			print("COMPUTER " + cMove);
 			if(cMove == "STAND"){
 				cDone = true;
+			} else {
+				bjt.updateGameState(decklist.get(deckIndex++).intValue());
 			}
-			else if(bjt.current.state.score==0){
+			if(bjt.gameNode.state.score==0){
 				print("COMPUTER BUST");
 				cDone = true;
 			}
@@ -107,8 +109,8 @@ public class Blackjack{
 	}
 	public void displayTable(boolean gameIsOver){
 		Card[] cHandArray = new Card[5];
-		for(int i = 0; i<bjt.current.state.cards.size(); i++){
-			cHandArray[i] = new Card(bjt.current.state.cards.get(i));
+		for(int i = 0; i<bjt.gameNode.state.cards.size(); i++){
+			cHandArray[i] = new Card(bjt.gameNode.state.cards.get(i));
 		}
 		Hand cCards, pCards, dCards;
 		if(gameIsOver){
@@ -131,7 +133,7 @@ public class Blackjack{
 		String pResult, cResult;
 		int dTotal = calcScore(dHand);
 		int pTotal = calcScore(pHand);
-		int cTotal = bjt.current.state.score;
+		int cTotal = bjt.gameNode.state.score;
 		if(dTotal==0){
 			dEnd = "BUSTED";
 			dTotal = 0;

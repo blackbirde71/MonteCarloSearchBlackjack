@@ -154,21 +154,3 @@ class Hand {
 		return hand;			
 	}
 }
-
-public class CLI {
-
-	/*public ArrayList<Card> dealer = new ArrayList<Card> ();
-	public ArrayList<Card> player = new ArrayList<Card> ();
-	public ArrayList<Card> computer = new ArrayList<Card> ();
-
-	public static void main(String[] args){
-		Card[] a = {new Card(0, 10), new Card(1, 11), new Card(2, 2)};
-
-        Hand h1 = new Hand(a, HandType.PLAYER);
-        Hand h2 = new Hand(a, HandType.DEALER);
-        Hand h3 = new Hand(a, HandType.COMPUTER);
-        System.out.println(h1.toString());
-        System.out.println(h2.toString());
-        System.out.println(h3.toString());*/
-
-}

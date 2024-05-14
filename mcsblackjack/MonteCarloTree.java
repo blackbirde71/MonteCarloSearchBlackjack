@@ -2,10 +2,6 @@
 * Abstract class for Monte Carlo Tree
 *
 * Inner class "Node"
-*	Needs to store:
-*		- State of the table
-*		- Reward - r_i - Cumulative rewards of associated leaf nodes
-*		- Number of states - n_i - Number of associated leaf nodes
 */
 package mcsblackjack;
 import java.util.*; 
@@ -55,24 +51,12 @@ public abstract class MonteCarloTree<State>{
     	root = new Node(initialState);
         current = root;
         gameNode = root;
-        // System.out.println(root.equals(current));
-        // System.out.println(root.equals(gameNode));
-        // System.out.println(current.equals(gameNode));
 
     }
 
-    // public void trackMove(State newState){
-    //     for(Node n : gameNode.children){
-    //         if(n.state.equals(newState)){
-    //             gameNode = n;
-    //         }
-    //     }
-    // }
-
-    abstract int chooseMove();
+    abstract String chooseMove();
 
     public void select(Node n) {
-        // System.out.println("selection reached:");
         current = n;
         if (isEnd(current.state)) {
             update();
@@ -80,10 +64,8 @@ public abstract class MonteCarloTree<State>{
         else { 
             if(current.isChildless){
                if (current.count==0) {
-                   // System.out.println("count==0");
                    update();
                } else {
-                   // System.out.println("count!=0");
                    State[] availMoves = findMoves(current.state);
                    for(State s : availMoves){
                        Node newNode;
@@ -93,17 +75,9 @@ public abstract class MonteCarloTree<State>{
                        } else {
                            newNode = null;
                        }
-                       current.children.add(newNode); // CONNECT PARENT POINTERS
+                       current.children.add(newNode); 
                    }
                    current.isChildless = false;
-   
-                   // // null check - to not explore the cards that are already in the game
-                   // Node newCurrent;
-                   // while (true) {
-                   //     // sometimes children is null
-                   //     newCurrent = current.children.get(new Random().nextInt(current.children.size()));
-                   //     if (newCurrent != null) break;
-                   // }
    
                    // always explore the stand option first
                    current = current.children.get(52);
@@ -117,14 +91,6 @@ public abstract class MonteCarloTree<State>{
         }
     }
 
-    public double max(double a, double b) {
-        if (a > b) {
-            return a;
-        } else {
-            return b;
-        }
-    }
-
     abstract void update();
 
     public double rollout(State simState){
@@ -135,39 +101,12 @@ public abstract class MonteCarloTree<State>{
         return rollout(simState);
     }
 
-    public void backpropagate(double addedReward, BackPropType backPropType) {
-        BackPropType bct = backPropType;
-        while (true) {
-            if (!current.equals(root)) {
-                if (bct == BackPropType.STAND) {
-                    current.parent.rewardStand += addedReward;
-                    // STAND only applies the first time
-                    bct = BackPropType.HIT;
-                } else {
-                    current.parent.rewardHit+= addedReward;
-                }
-                if (current.parent.count == 0) {
-                    System.out.println("ISSUE WITH count = 0");
-                }
-                // count is not updated yet
-                current.parent.reward = (current.parent.count + 1) * max(current.parent.rewardHit / current.parent.count, current.parent.rewardStand);
-            }
-            current.count++;
-            if (current.equals(gameNode)) {
-                break;
-            }
-            current = current.parent;
-        }
-    }
+    abstract void backpropagate(double addedReward, BackPropType backPropType);
 
-    // make it truly abstract!!
     abstract Node findMax();
     
-    // abstract void resetCurrent(); // GO TO CURRENT STATE IN GAME
     abstract State getRandomMove(State state);
     abstract boolean isEnd(State state);
     abstract State[] findMoves(State state);
     abstract double calcReward(State state);
-    // public static void main(String[] args){
-    // }
 }

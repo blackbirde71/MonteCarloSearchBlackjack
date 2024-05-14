@@ -10,7 +10,7 @@ class Card {
 
 	public Card(int cardInt) {
 		this.cardInt = cardInt;
-		this.suit = cardInt % 4;			
+		this.suit = cardInt % 4; // Convert exact card identification number to suit and rank numbers		
 		this.rank = cardInt / 4;
 	}
 }
@@ -24,8 +24,8 @@ enum HandType {
 class Hand {
 	public Card[] cards = new Card[5];
 	public HandType type;
-	private static HashMap<Integer, String> suit = new HashMap<Integer, String> ();
-	private static HashMap<Integer, String> rank = new HashMap<Integer, String> ();
+	private static HashMap<Integer, String> suit = new HashMap<Integer, String> (); // Hash maps assigning identification numbers to suits and ranks
+	private static HashMap<Integer, String> rank = new HashMap<Integer, String> (); //
 
 	public Hand(Card[] cards, HandType type) {
 		this.cards = cards;
@@ -47,7 +47,7 @@ class Hand {
 	}	
 
 	public static String getRank(int i) {
-		if (i < 9) {
+		if (i < 9) { // Separate cards with face value values and face cards or aces
 			return String.valueOf(i+2);
 		} else {
 			return rank.get(i);
@@ -57,7 +57,7 @@ class Hand {
 	public void addCard(Card c) {
 		int numCards=0;
 		for (int i=0; i<5; i++){
-			if(cards[i]==null){
+			if(cards[i]==null){ // Indicates this card slot is null
 				break;
 			}
 			numCards = i+1;

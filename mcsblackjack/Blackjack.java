@@ -1,4 +1,4 @@
-/*
+/**
 * Main file; runs the game
 * Implements computer algorithmic choice, dealer deterministic choice, and player input choice
 */
@@ -17,7 +17,7 @@ public class Blackjack{
     public int roundNum;
     public boolean dDone, cDone, pDone;
 	public Blackjack() {
-		this.EXPLORATION = 2;
+		this.EXPLORATION = 2; // Exploration parameter for the upper confidence bound algorithm
 		this.NUMITERATIONS = 10000;
 		this.deckIndex = 0;
 		this.dIndex = 0;
@@ -27,6 +27,10 @@ public class Blackjack{
 		this.cDone = false;
 		this.pDone = false;
 	}
+	/**
+	* dealCards: initializes the hands of the 3 agents
+ 	* returns: cHand, an ArrayList of Integers which represent the computer's cards
+	*/
 	public ArrayList<Integer> dealCards(){
 		Integer[] deck = new Integer[52];
 		for (int i=0; i<52; i++) {
@@ -43,9 +47,14 @@ public class Blackjack{
 		cHand.add(decklist.get(deckIndex++));
 		return cHand;
 	}
+	/**
+	* calcScore: initializes the hands of the 3 agents
+	* parameters: hand, an array of type Card which is used to calculate the respective agent's score
+ 	* returns: bjs.score, the score of the hand
+	*/
 	public int calcScore(Card[] hand){
 		ArrayList<Integer> handAL = new ArrayList<Integer>();
-		for(Card c : hand){
+		for(Card c : hand){ // Convert Array to ArrayList
 			if(c == null){
 				break;
 			}
@@ -54,6 +63,9 @@ public class Blackjack{
 		bjs = new BlackjackState(handAL, false);
 		return bjs.score;
 	}
+	/**
+	* dTurn: runs the dealer's turn
+	*/
 	public void dTurn(){
 		if(! dDone){
 			int total = calcScore(dHand);
@@ -63,7 +75,7 @@ public class Blackjack{
 				total = calcScore(dHand);
 				if(total==0){
 				print("DEALER BUST");
-				endGame();
+				endGame(); // Game ends immediately when dealer busts
 				}
 			}
 			else{
@@ -72,6 +84,9 @@ public class Blackjack{
 			}
 		}
 	}
+	/**
+	* cTurn: runs the computer's turn
+	*/
 	public void cTurn(){
 		if(!cDone){
 			String cMove = bjt.play();
@@ -79,7 +94,7 @@ public class Blackjack{
 			if(cMove == "STAND"){
 				cDone = true;
 			} else {
-				bjt.updateGameState(decklist.get(deckIndex++).intValue());
+				bjt.updateGameState(decklist.get(deckIndex++).intValue()); // Add card
 			}
 			if(bjt.gameNode.state.score==0){
 				print("COMPUTER BUST");
@@ -87,14 +102,17 @@ public class Blackjack{
 			}
 		}
 	}
+	/**
+	* pTurn: runs the player's turn
+	*/
 	public void pTurn(){
 		if(! pDone){
 			Scanner readIn = new Scanner(System.in);
 			printI("(h)it or (s)tand? ");
-			String pMove = readIn.nextLine();
+			String pMove = readIn.nextLine(); // Get player decision
 			if(pMove.equals("h")){
 				print("PLAYER HIT");
-				pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue());
+				pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue()); // Add card
 				int total = calcScore(pHand);
 				if(total==0){
 					print("PLAYER BUST");
@@ -107,10 +125,14 @@ public class Blackjack{
 			}
 		}
 	}
+	/**
+	* displayTable: displays all agents' cards from the perspective of the player
+ 	* parameters: gameIsOver, a flag determining whether to display all cards face up or only ones accessible to player during the game
+	*/
 	public void displayTable(boolean gameIsOver){
 		Card[] cHandArray = new Card[5];
 		for(int i = 0; i<bjt.gameNode.state.cards.size(); i++){
-			cHandArray[i] = new Card(bjt.gameNode.state.cards.get(i));
+			cHandArray[i] = new Card(bjt.gameNode.state.cards.get(i)); // Convert ArrayList to Array
 		}
 		Hand cCards, pCards, dCards;
 		if(gameIsOver){
@@ -128,6 +150,9 @@ public class Blackjack{
 		print(cCards.toString()+"  computer\n");
 		print(pCards.toString()+"  player\n");
 	}
+	/**
+	* displayResults: prints out the game results for all agents
+	*/
 	public void displayResults(){
 		String dEnd, pEnd, cEnd;
 		String pResult, cResult;
@@ -177,32 +202,50 @@ public class Blackjack{
 		print("COMPUTER " + cEnd + " " + cResult);
 		print("PLAYER " + pEnd + " " + pResult);
 	}
+	/**
+	* endGame: manages the game end sequence and exits the program
+	*/
 	public void endGame(){
 		print("\ngame over");
 		displayTable(true);
 		displayResults();
 		System.exit(0);
 	}
+	/**
+	* runGame: loops over the steps involved in running the game, including playing
+ 	*	each agents' turns, checking for game end, displaying cards, and running Tree Search simulations
+	*/
 	public void runGame(){
 		displayTable(false);
 		print("round " + roundNum++);
 		dTurn();
-		bjt.play();
+		bjt.play(); // Runs Monte Carlo tree search simulations
 		cTurn();
 		pTurn();
 		if(dDone && cDone && pDone){
-			endGame();
+			endGame(); // All players standing or busted
 		}
 		runGame();
 	}
+	/**
+	* print: prints statement with slight delay
+ 	* parameters: s, the string to be printed
+	*/
 	public void print(String s){
-		try{Thread.sleep(500);}catch(InterruptedException e){}
+		try{Thread.sleep(500);}catch(InterruptedException e){} // 500ms delay
 		System.out.println(s);
 	}
+	/**
+	* print: prints statement with slight delay and no trailing newline
+ 	* parameters: s, the string to be printed
+	*/
 	public void printI(String s){
 		try{Thread.sleep(500);}catch(InterruptedException e){}
 		System.out.printf(s);
 	}
+	/**
+	* main: initializes the objects and starts the game loop
+	*/
 	public static void main(String[] args){
 		Blackjack bj = new Blackjack();
 		ArrayList<Integer> cHand = bj.dealCards();

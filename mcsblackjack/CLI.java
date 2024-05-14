@@ -1,4 +1,4 @@
-package msblackjack;
+package mcsblackjack;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -86,11 +86,11 @@ class Hand {
 
 		// card example:
 		// *---------*
-		// | K       |
+		// | 10      |
 		// |		 |
 		// |    ♣	 |
 		// |         |
-		// |       K |
+		// |      10 |
 		// *---------*
 
 		// filling the card tops
@@ -108,8 +108,6 @@ class Hand {
 				if (type == HandType.PLAYER || (type == HandType.DEALER && c==0)) {
 					// adding card symbols if applicable
 					if (r%2 == 0) {
-						// index at which the symbol should be placed
-						int s = 2 + r/2 * 3;
 						String symbol;
 						// determine what the symbol is
 						if (r == 2) {
@@ -117,6 +115,8 @@ class Hand {
 						} else {
 							symbol = getRank(cards[c].rank);
 						}
+						// index at which the symbol should be placed
+						int s = r==4 && symbol.length()==2 ? 1 + r/2 * 3 : 2 + r/2 * 3;
 						hand += shown.substring(0, s) + symbol + shown.substring(s+symbol.length(), 11) + space;
 					} else {
 						// lines that don't contain symbols

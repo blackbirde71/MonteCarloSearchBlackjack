@@ -15,5 +15,6 @@ In Blackjack, all players (in this case the user and the computer referencing th
 	- Implement 5 card win in Blackjack
 ## How to run:
 ```
-javac -d bin mcsblackjack/*.java ; java -cp bin mcsblackjack.Blackjack
+javac -d bin mcsblackjack/*.java
+java -cp bin mcsblackjack.Blackjack
 ```

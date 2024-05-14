@@ -8,8 +8,9 @@ public class BlackjackState {
 	public boolean isStanding;
 	public int numCards; 
 
+	// calculate the score of the current state
 	public int calcScore(int numCards) {
-		// account for different values of aces
+		// we need to account for different values of aces, 1 and 11
 		ArrayList<Integer> possibleScores = new ArrayList<Integer>();
 		// launch recursion
 		helper(cards, numCards, 0, 0, possibleScores);
@@ -31,9 +32,6 @@ public class BlackjackState {
 	}
 
 	public void helper(ArrayList<Integer> cards, int numCards, int currScore, int index, ArrayList<Integer> possibleScores) {
-		// System.out.println(numCards);
-		
-
 		// if the current card is an ace
 		if (cards.get(index) > 47) {
 			// if it is the last card
@@ -43,14 +41,18 @@ public class BlackjackState {
 				possibleScores.add(currScore+11);
 			} else {
 				// ace is 1 OR 11
+				// so recursion branches out here
 				helper(cards, numCards, currScore+11, index+1, possibleScores);
 				helper(cards, numCards, currScore+1, index+1, possibleScores);
 			}
 		} else {
+			// offset is 2, e.g. TWO OF CLUBS is the card with index 0
 			int value = cards.get(index) / 4 + 2;
 
+			// all face cards have a value of 10
 			if (value > 10) value = 10;
 
+			// if last card
 			if (index == numCards-1) {
 				possibleScores.add(currScore+value);
 			} else {
@@ -59,6 +61,7 @@ public class BlackjackState {
 		}
 	}
 
+	// custom equality check method
 	public boolean equals(BlackjackState a) {
 		if (this.cards.equals(a.cards) && this.isStanding == a.isStanding) return true;
 		return false;
@@ -74,20 +77,10 @@ public class BlackjackState {
 
 		this.isStanding = isStanding;
 
+		// four possible conditions for the node to be terminal
 		if (isStanding) isEnd = true;
 		if (numCards >= 5) isEnd = true;
 		if (score > 20) isEnd = true;
 		if (score == 0) isEnd = true;
-
-
-		// System.out.println(cards.toString());
-		// System.out.println(score);
-		// System.out.println(isEnd);
-		if (isEnd) {
-			// System.out.println("end score: ");
-			// System.out.println(score);
-
-			// System.out.println(cards.toString());
-		}
 	}
 }

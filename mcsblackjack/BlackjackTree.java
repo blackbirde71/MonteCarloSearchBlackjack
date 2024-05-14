@@ -163,9 +163,6 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
                 } else {
                     current.parent.rewardHit+= addedReward;
                 }
-                if (current.parent.count == 0) {
-                    System.out.println("ISSUE WITH count = 0");
-                }
                 // count is updated later, so count + 1 here
                 current.parent.reward = (current.parent.count + 1) * max(current.parent.rewardHit / current.parent.count, current.parent.rewardStand);
             }

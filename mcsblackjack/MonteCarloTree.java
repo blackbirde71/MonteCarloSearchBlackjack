@@ -40,7 +40,7 @@ public abstract class MonteCarloTree<State>{
         // reward that came from simulating stands
         public double rewardStand;
 
-        // custom comparison
+        // custom equality check method
         public boolean equals(Node a) {
             return this.state.equals(a.state);
         }

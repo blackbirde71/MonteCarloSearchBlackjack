@@ -16,6 +16,39 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
 		this.dealerCard = dealerCard;
 	}
 
+	public void update() {
+        double newReward = 0;
+
+        for(int i=0; i<NUMITERATIONS; i++){
+            newReward += rollout(current.state);
+            // System.out.print("rollout result: ");
+            // System.out.println(rollout(current.state));
+        }
+
+        newReward /= NUMITERATIONS;
+
+        double oldReward = current.reward;
+
+        //type of backprop:
+        BackPropType bct;
+
+        if (current.state.isStanding) {
+            current.rewardStand += newReward;
+            current.reward += newReward;
+            bct = BackPropType.STAND;
+        } else {
+            current.rewardHit += newReward;
+            current.reward += newReward;
+            bct = BackPropType.HIT;
+        }
+
+        // difference between the old and new reward
+        // that needs to be backpropagated
+        double diff = current.reward - oldReward;        
+
+        backpropagate(diff, bct);
+    }
+
 	public BlackjackState[] findMoves(BlackjackState state) {
 		BlackjackState[] b = new BlackjackState[53];
 		// 53rd element is standing
@@ -53,7 +86,7 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
 		Random r = new Random();
         
         // biasing the algorithm so it explores the stand option more often
-        if (r.nextInt(2) == 0) {
+        if (r.nextInt(2) > 0) {
         	ArrayList<Integer> currentCards = new ArrayList<Integer>(state.cards);
         	return new BlackjackState(currentCards, true);
         } else {
@@ -172,12 +205,8 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     public int chooseMove() {
         double totalHitScore = 0.0;
 
-        // should it be sum of reward/count
-        // or (sum of rewards) / count
-        // System.out.println(gameNode.children);
-        // System.out.println(123);
-        for(int i=0; i<52; i++){
-        	Node n = gameNode.children.get(i);
+        for(Node n : gameNode.children) {
+        	// Node n = gameNode.children.get(i);
         	// null check against skipped cards
             if (n != null) {
             	// System.out.print(" | reward: ");
@@ -185,9 +214,16 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
             	totalHitScore += n.reward / n.count;
             }
         }
-        totalHitScore = totalHitScore / 52;
+        totalHitScore = 1.2 * totalHitScore / 52;
 
-        double standScore = gameNode.children.get(52).reward / gameNode.children.get(52).count;
+        double standScore;
+
+        // in other words, if the node's score is equal to 21:
+        if (gameNode.children.size() != 0) {
+        	standScore = gameNode.children.get(52).reward / gameNode.children.get(52).count;
+        } else {
+        	standScore = gameNode.reward;
+        }
         System.out.print("Hit score: ");
         System.out.println(totalHitScore);
         System.out.print("Stand score: ");
@@ -228,7 +264,7 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     }
 
     public int play() {
-    	for (int i=0; i<50000; i++) {
+    	for (int i=0; i<100; i++) {
     		// System.out.println("new select");
     		select(gameNode);
     	}
@@ -250,9 +286,10 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     	// 		n2 = c;
     	// 	}
     	// }
-    	printNodes(root);
+    	// printNodes(root);
 
-    	// System.out.println(root.children.get(30).children.toString());
+    	System.out.println(gameNode.state.cards.toString());
+    	System.out.println(gameNode.state.score);
     	return chooseMove();
 
     	// System.out.println(current.reward);

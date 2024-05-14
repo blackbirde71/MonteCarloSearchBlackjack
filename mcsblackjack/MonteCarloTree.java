@@ -43,8 +43,6 @@ public abstract class MonteCarloTree<State>{
             this.isChildless = true;
             this.state = state;
             this.count = 0;
-            this.countHit = 0;
-            this.countStand = 0;
             this.reward = 0;
             this.rewardHit = 0;
             this.rewardStand = 0;
@@ -127,42 +125,7 @@ public abstract class MonteCarloTree<State>{
         }
     }
 
-    public void update() {
-        double newReward = 0;
-
-        for(int i=0; i<NUMITERATIONS; i++){
-            newReward += rollout(current.state);
-            // System.out.print("rollout result: ");
-            // System.out.println(rollout(current.state));
-        }
-
-        newReward /= NUMITERATIONS;
-
-        double oldReward = current.reward;
-
-        //type of backprop:
-        BackPropType bct;
-
-        if (current.state.isStanding) {
-            currrent.rewardStand += newReward;
-            currrent.reward += newReward;
-            bct = BackPropType.STAND;
-        } else {
-            current.rewardHit += newReward;
-            current.reward += newReward;
-            bct = BackPropType.HIT;
-        }
-
-        // count is not updated yet
-        // it is only updated in backpropagate()
-        // current.reward = 
-
-        // difference between the old and new reward
-        // that needs to be backpropagated
-        double diff = current.reward - oldReward;        
-
-        backpropagate(diff, bct);
-    }
+    abstract void update();
 
     public double rollout(State simState){
         if(isEnd(simState)){
@@ -183,8 +146,11 @@ public abstract class MonteCarloTree<State>{
                 } else {
                     current.parent.rewardHit+= addedReward;
                 }
-                (current.count + 1) * max(current.rewardStand / current.count, current.rewardHit);
-                current.parent.reward += addedReward;
+                if (current.parent.count == 0) {
+                    System.out.println("ISSUE WITH count = 0");
+                }
+                // count is not updated yet
+                current.parent.reward = (current.parent.count + 1) * max(current.parent.rewardHit / current.parent.count, current.parent.rewardStand);
             }
             current.count++;
             if (current.equals(gameNode)) {

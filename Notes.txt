@@ -1,5 +1,10 @@
 To do:
-	- Determine if it actually is a tree (for technicality purposes) (could be a DAG?) (consider bidirectionality)
-	- Fix move calculation to consolidate equivalent-move states
-	- Hash Table converting a hand of cards to a long state identification number
-	- Check that unusual starting state logic works
+	- Fix constants redundancy
+	- Change EXPLORATION to float
+	- Consider making constants final variables
+	- Consider converting pHand and dHand to Arraylists
+	- Change play() in BlackjackTree to take a parameter denoting number of times to select
+	- Consider timing play() to player's decision time rather than hardcoding number of simulations
+	- Make MonteCarloTree abstract
+	- Move calculations for finding number of cards in CLI to a function
+	- Implement 5 card win in Blackjack

@@ -230,11 +230,9 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
         System.out.println(standScore);
 
         if (totalHitScore > standScore) {
-        	System.out.println("HIT");
-        	return -1;
+        	return "HIT";
         } else {
-        	System.out.println("STAND");
-        	return gameNode.state.score;
+        	return "STAND";
         }
     }
 

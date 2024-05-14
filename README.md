@@ -6,10 +6,14 @@ This project implements an abstract-implementing class structure, with MonteCarl
 Monte Carlo tree search is an algorithm that combines reinforcement learning with search trees to develop a structure comprising of all the choices an agent can make in the game and their respective estimated payoffs. Monte Carlo tree search crucially invokes Monte Carlo methods of simulation, which involves randomizing selections to efficiently model the game where complete simulations would be too resource intensive. The algorithm invovles two main steps, selection, and updating. The first step involves picking a state node to simulate from, using an upper confidence bound algorithm to prioritize states with higher yields and less visits. This node is then potentially expanded to all its available child states depending on the number of visits to that node. The second main step in the process is updating the tree, where the computer first simulates a random sequences of moves from the selected node to a game end, and then a reward is calculated and used to update the weights on the successive parents of the node leading up to the node currently in play. These two actions are termed "rollout" and "backpropagation," respectively.
 ## Blackjack
 In Blackjack, all players (in this case the user and the computer referencing the Monte Carlo tree) play against the dealer. All agents are initially dealt 2 cards, and must choose to "hit" or "stand" each round of the game. When hitting, they receive another card from the deck. The agent seeks to bring their card total as close to 21 as possible without going over, in which case they lose. When they are satisfied with their current total, the agent "stands" to stop receiving cards for the rest of the game. In this game, face cards are worth 10, aces are worth the more useful option out of 1 or 11, and all other cards are worth their rank.
-## Future tasks
+## Possible improvements:
 	- Fix constants redundancy
 	- Change EXPLORATION to float
 	- Consider making constants final variables
 	- Consider timing play() to player's decision time rather than hardcoding number of simulations
 	- Make MonteCarloTree more abstract
 	- Implement 5 card win in Blackjack
+## How to run:
+```
+javac -d bin mcsblackjack/*.java ; java -cp bin mcsblackjack.Blackjack
+```

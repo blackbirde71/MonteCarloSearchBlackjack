@@ -27,6 +27,7 @@ class Hand {
 	private static HashMap<Integer, String> suit = new HashMap<Integer, String> (); // Hash maps assigning identification numbers to suits and ranks
 	private static HashMap<Integer, String> rank = new HashMap<Integer, String> (); //
 
+	// converting ints to symbols and face cards
 	public Hand(Card[] cards, HandType type) {
 		this.cards = cards;
 		this.type = type;

@@ -90,7 +90,7 @@ public class BlackjackState {
 			// System.out.println("end score: ");
 			// System.out.println(score);
 
-			System.out.println(cards.toString());
+			//System.out.println(cards.toString());
 		}
 	}
 }

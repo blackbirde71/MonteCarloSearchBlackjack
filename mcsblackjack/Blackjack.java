@@ -10,11 +10,13 @@ public class Blackjack{
     public int NUMITERATIONS;
     public BlackjackState bjs;
     public BlackjackTree bjt;
+    public List<Integer> decklist;
     public Integer[] deck;
     public int deckIndex, dIndex, pIndex;
     public static HashMap<Integer, String> suit;
     public static HashMap<Integer, String> rank;
-    public Card[] dHand, pHand;
+    public Card[] dHand = new Card[5];
+    public Card[] pHand = new Card[5];
     public int roundNum;
     public boolean dDone, cDone, pDone;
 	public Blackjack() {
@@ -41,50 +43,60 @@ public class Blackjack{
 		rank.put(11, "K");
 		rank.put(12, "A");
 	}
-	public Card[][] dealCards(){
+	public ArrayList<Integer> dealCards(){
 		Integer[] deck = new Integer[52];
 		for (int i=0; i<52; i++) {
 			deck[i] = i;
 		}
-		List<Integer> decklist = Arrays.asList(deck);
+		decklist = Arrays.asList(deck);
 		Collections.shuffle(decklist);
 		ArrayList<Integer> cHand = new ArrayList<Integer>();
-		dHand[dIndex++] = new Card(Integer.intValue(decklist.get(deckIndex++))); //! check functionality of inline post-increment
-		dHand[dIndex++] = new Card(Integer.intValue(decklist.get(deckIndex++)));
-		pHand[pIndex++] = new Card(Integer.intValue(decklist.get(deckIndex++)));
-		pHand[pIndex++] = new Card(Integer.intValue(decklist.get(deckIndex++)));
+		dHand[dIndex++] = new Card(decklist.get(deckIndex++).intValue()); //! check functionality of inline post-increment
+		dHand[dIndex++] = new Card(decklist.get(deckIndex++).intValue());
+		pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue());
+		pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue());
 		cHand.add(decklist.get(deckIndex++));
 		cHand.add(decklist.get(deckIndex++));
+		return cHand;
+	}
+	public int calcScore(Card[] hand){
+		ArrayList<Integer> handAL = new ArrayList<Integer>();
+		for(Card c : hand){
+			if(c == null){
+				break;
+			}
+			handAL.add(4*c.rank+c.suit);
+		}
+		bjs = new BlackjackState(handAL, false);
+		return bjs.score;
 	}
 	public void dTurn(){
 		if(! dDone){
-			int total = 0;
-			for(card c : dHand){
-				total += Card.getRank(c.rank);
-			}
+			int total = calcScore(dHand);
 			if(total<17){
-				System.out.println("DEALER HIT");
-				dHand[dIndex++] = new Card(Integer.intValue(decklist.get(deckIndex++)));
+				print("DEALER HIT");
+				dHand[dIndex++] = new Card(decklist.get(deckIndex++).intValue());
+				total = calcScore(dHand);
+				if(total>21){
+				print("DEALER BUST");
+				endGame();
+				}
 			}
 			else{
-				System.out.println("DEALER STAND");
+				print("DEALER STAND");
 				dDone = true;
-			}
-			if(total + Card.getRank(dHand[dIndex].rank) > 21){
-				System.out.println("DEALER BUST");
-				endGame();
 			}
 		}
 	}
 	public void cTurn(){
-		if(! bjt.current.isStanding){
+		if(! bjt.current.state.isStanding){
 			String cMove = bjt.chooseMove();
-			System.out.println("COMPUTER " + cMove);
+			print("COMPUTER " + cMove);
 			if(cMove == "STAND"){
 				cDone = true;
 			}
-			else if(bjt.current.isEnd && !bjt.current.isStanding){
-				System.out.println("COMPUTER BUST");
+			else if(bjt.current.state.isEnd && !bjt.current.state.isStanding){
+				print("COMPUTER BUST");
 				cDone = true;
 			}
 		}
@@ -92,61 +104,53 @@ public class Blackjack{
 	public void pTurn(){
 		if(! pDone){}
 			Scanner readIn = new Scanner(System.in);
-			System.out.println("(h)it or (s)tand? ");
-			char pMove = readIn.nextLine();
-			if(pMove == 'h'){
-				System.out.println("PLAYER HIT");
-				pHand[pIndex++] = new Card(Integer.intValue(decklist.get(deckIndex++)));
-				int total = 0;
-				for(card c : dHand){
-					total += Card.getRank(c.rank);
-				}
+			printI("(h)it or (s)tand? ");
+			String pMove = readIn.nextLine();
+			if(pMove.equals("h")){
+				print("PLAYER HIT");
+				pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue()); //> Check for hand of 5 and then announce player win in this case
+				int total = calcScore(pHand);
+				print(String.valueOf(total));
 				if(total>21){
-					System.out.println("PLAYER BUST");
+					print("PLAYER BUST");
 					pDone = true;
 				}
 			}
 			else{
-				System.out.println("PLAYER STAND");
+				print("PLAYER STAND");
 				pDone = true;
 			}
 		}
-	}
 	public void displayTable(){ //> Combine with displayEndTable()
 		Card[] cHandArray = new Card[5];
-		for(int i = 0; i<5; i++){
-			cHandArray[i] = new Card(cHand.get(i));
+		for(int i = 0; i<bjt.current.state.cards.size(); i++){
+			cHandArray[i] = new Card(bjt.current.state.cards.get(i));
 		}
 		Hand cCards = new Hand(cHandArray, HandType.COMPUTER);
 		Hand dCards = new Hand(dHand, HandType.DEALER);
 		Hand pCards = new Hand(pHand, HandType.PLAYER);
-		System.out.println(cCards.toString());
-		System.out.println(dCards.toString());
-		System.out.println(pCards.toString());
+		print("\n"+cCards.toString()+"  computer\n");
+		print(dCards.toString()+"  dealer\n");
+		print(pCards.toString()+"  player\n");
 	}
 	public void displayEndTable(){
 		Card[] cHandArray = new Card[5];
-		for(int i = 0; i<5; i++){
-			cHandArray[i] = new Card(cHand.get(i));
+		for(int i = 0; i<bjt.current.state.cards.size(); i++){
+			cHandArray[i] = new Card(bjt.current.state.cards.get(i));
 		}
-		Hand cCards = new Hand(cHandArray, HandType.COMPUTER);
-		Hand dCards = new Hand(dHand, HandType.COMPUTER);
-		Hand pCards = new Hand(pHand, HandType.COMPUTER);
-		System.out.println(cCards.toString());
-		System.out.println(dCards.toString());
-		System.out.println(pCards.toString());
+		Hand cCards = new Hand(cHandArray, HandType.PLAYER);
+		Hand dCards = new Hand(dHand, HandType.PLAYER);
+		Hand pCards = new Hand(pHand, HandType.PLAYER);
+		print("\n"+cCards.toString()+"  computer\n");
+		print(dCards.toString()+"  dealer\n");
+		print(pCards.toString()+"  player\n");
 	}
 	public void displayResults(){
 		String dEnd, pEnd, cEnd;
 		String pResult, cResult;
-		int dTotal = pTotal = 0;
-		int cTotal = bjt.current.score;
-		for(card c : dHand){
-			dTotal += Card.getRank(c.rank);
-		}
-		for(card c : pHand){
-			pTotal += Card.getRank(c.rank);
-		}
+		int dTotal = calcScore(dHand);
+		int pTotal = calcScore(pHand);
+		int cTotal = bjt.current.state.score;
 		if(dTotal>21){
 			dEnd = "BUSTED";
 			dTotal = 0;
@@ -162,7 +166,7 @@ public class Blackjack{
 			pEnd = "STANDING";
 		}
 
-		if(bjt.current.isEnd && ! bjt.current.isStanding){
+		if(bjt.current.state.isEnd && ! bjt.current.state.isStanding){
 			cEnd = "BUSTED";
 			cTotal = -1;
 		}
@@ -172,7 +176,7 @@ public class Blackjack{
 		if(pTotal>dTotal){
 			pResult = "WIN";
 		}
-		else if(pTotal=dTotal){
+		else if(pTotal==dTotal){
 			pResult = "TIE";
 		}
 		else{
@@ -181,28 +185,32 @@ public class Blackjack{
 		if(cTotal>dTotal){
 			cResult = "WIN";
 		}
-		else if(cTotal=dTotal){
+		else if(cTotal==dTotal){
 			cResult = "TIE";
 		}
 		else{
 			cResult = "LOSS";
 		}
-		System.out.println("DEALER " + dEnd + " ");
-		System.out.println("COMPUTER " + cEnd + " " + cResult);
-		System.out.println("PLAYER " + pEnd + " " + pResult);
+		print("DEALER " + dEnd + " ");
+		print("COMPUTER " + cEnd + " " + cResult);
+		print("PLAYER " + pEnd + " " + pResult);
 	}
 	public void endGame(){
-		System.out.println("game over");
+		print("\ngame over");
 		displayEndTable();
 		displayResults();
 	}
 	public void runGame(){
-		System.out.println("round " + roundNum);
+		displayTable();
+		/*for(Card c : pHand){
+			print(String.valueOf(c.rank));
+			print(String.valueOf(c.suit));
+		}*/
+		print("round " + roundNum++);
 		dTurn();
 		bjt.play();
 		cTurn();
 		pTurn();
-		displayTable();
 		if(dDone && cDone && pDone){
 			endGame();
 		}
@@ -210,10 +218,18 @@ public class Blackjack{
 			runGame();
 		}
 	}
+	public void print(String s){
+		try{Thread.sleep(500);}catch(InterruptedException e){}
+		System.out.println(s);
+	}
+	public void printI(String s){
+		try{Thread.sleep(500);}catch(InterruptedException e){}
+		System.out.printf(s);
+	}
 	public static void main(String[] args){
-		dealCards();
-		this.bjs = new BlackjackState(cHand, false); //? What is this needed for?
-		this.bjt = new BlackjackTree(dHand[0].cardInt, cHand, this.EXPLORATION, this.NUMITERATIONS);
-		runGame();
+		Blackjack bj = new Blackjack();
+		ArrayList<Integer> cHand = bj.dealCards();
+		bj.bjt = new BlackjackTree(bj.dHand[0].cardInt, cHand, bj.EXPLORATION, bj.NUMITERATIONS);
+		bj.runGame();
     }
 }

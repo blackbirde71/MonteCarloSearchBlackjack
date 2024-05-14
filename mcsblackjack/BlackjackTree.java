@@ -112,7 +112,7 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     	gameNode = gameNode.children.get(newCard);
     }
 
-    public int chooseMove() {
+    public String chooseMove() {
         double totalHitScore = 0.0;
 
         // should it be sum of reward/count

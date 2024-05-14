@@ -59,17 +59,17 @@ public abstract class MonteCarloTree<State>{
     //     }
     // }
 
-    abstract int chooseMove();
+    abstract String chooseMove();
 
     public void select() {
-        System.out.println("selection reached:");
+        //System.out.println("selection reached:");
         current = gameNode;
         if(current.isChildless){
             if (current.count==0) {
-                System.out.println("count==0");
+                //System.out.println("count==0");
                 update();
             } else {
-                System.out.println("count!=0");
+                //System.out.println("count!=0");
                 State[] availMoves = findMoves(current.state);
                 for(State s : availMoves){
                     Node newNode;

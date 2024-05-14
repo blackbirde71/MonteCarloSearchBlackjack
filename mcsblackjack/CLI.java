@@ -47,15 +47,21 @@ class Hand {
 	}	
 
 	public static String getRank(int i) {
-		if (i < 11) {
-			return String.valueOf(i);
+		if (i < 9) {
+			return String.valueOf(i+2);
 		} else {
 			return rank.get(i);
 		}
 	}
 
 	public void addCard(Card c) {
-		int numCards = cards.length;
+		int numCards=0;
+		for (int i=0; i<5; i++){
+			if(cards[i]==null){
+				break;
+			}
+			numCards = i+1;
+		}
 		if (numCards >= 5) {
 			System.out.println("You cannot draw more cards!");
 		} else {
@@ -65,7 +71,13 @@ class Hand {
 
 	public String toString() {
 		// number of cards
-		int numCards = cards.length;
+		int numCards=0;
+		for (int i=0; i<5; i++){
+			if(cards[i]==null){
+				break;
+			}
+			numCards = i+1;
+		}
 
 		// String hiddenCard = 
 		// "*---------*\n" +
@@ -137,7 +149,7 @@ class Hand {
 		}
 
 		// removes the trailing space
-		hand = hand.substring(0, hand.length() - 4) + "\n";
+		hand = hand.substring(0, hand.length() - 4); //! removed newline at end to allow for inline handtype labelling in Blackjack
 
 		return hand;			
 	}
@@ -145,7 +157,7 @@ class Hand {
 
 public class CLI {
 
-	public ArrayList<Card> dealer = new ArrayList<Card> ();
+	/*public ArrayList<Card> dealer = new ArrayList<Card> ();
 	public ArrayList<Card> player = new ArrayList<Card> ();
 	public ArrayList<Card> computer = new ArrayList<Card> ();
 
@@ -157,7 +169,6 @@ public class CLI {
         Hand h3 = new Hand(a, HandType.COMPUTER);
         System.out.println(h1.toString());
         System.out.println(h2.toString());
-        System.out.println(h3.toString());
+        System.out.println(h3.toString());*/
 
-    }
 }

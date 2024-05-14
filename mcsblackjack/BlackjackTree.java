@@ -151,8 +151,6 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
 
     public double calcReward(BlackjackState state) {
     	double score = state.score;
-    	if (score > 21) return 0.0;
-    	if (state.numCards == 5) return 1.0;
     	// System.out.print("calcReward score: ");
     	// System.out.println(score / 21);
     	return score / 21; 
@@ -205,6 +203,9 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     }
 
     public void printNodes(Node n) {
+    	double sum = 0.0;
+    	System.out.println("node isEnd:");
+		System.out.println(isEnd(n.state));
     	System.out.println("root count");
 		System.out.println(n.count);
 		System.out.println("root reward");
@@ -212,22 +213,46 @@ public class BlackjackTree extends MonteCarloTree<BlackjackState> {
     	for (Node a : n.children) {
     		if (a != null) {
     			// System.out.print(a.children.size());
+    			sum += a.reward;
     			System.out.print(" count: ");
     			System.out.print(a.count);
     			System.out.print(" | reward: ");
     			System.out.println(a.reward / a.count);
+    			// System.out.println(a.state.cards.toString());
+    			// System.out.println(a.state.score);
     		}
     	}
+    	System.out.print("sum: ");
+    	System.out.println(sum);
     	// System.out.println(n.children.get(51).state.score);
     }
 
     public int play() {
-    	for (int i=0; i<500; i++) {
+    	for (int i=0; i<50000; i++) {
     		// System.out.println("new select");
     		select(gameNode);
     	}
-    	Node n = root;
-    	printNodes(n.children.get(30));
+    	// Node n = root.children.get(0);
+    	// for (Node c : root.children) {
+    	// 	if (c != null && c.reward > n.reward) {
+    	// 		n = c;
+    	// 	}
+    	// }
+    	// Node n1 = n.children.get(0);
+    	// for (Node c : n.children) {
+    	// 	if (c != null && c.reward > n1.reward) {
+    	// 		n1 = c;
+    	// 	}
+    	// }
+    	// Node n2 = n1.children.get(0);
+    	// for (Node c : n1.children) {
+    	// 	if (c != null && c.reward > n2.reward) {
+    	// 		n2 = c;
+    	// 	}
+    	// }
+    	printNodes(root);
+
+    	// System.out.println(root.children.get(30).children.toString());
     	return chooseMove();
 
     	// System.out.println(current.reward);

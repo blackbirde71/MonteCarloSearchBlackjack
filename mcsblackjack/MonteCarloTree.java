@@ -16,25 +16,38 @@ public abstract class MonteCarloTree<State>{
     public Node current;
     public Node gameNode;
 
+    enum BackPropType {
+        STAND,
+        HIT,
+    }
+
 	public class Node{
         public ArrayList<Node> children;
         public Node parent;
         public boolean isChildless;
-        public long count;
-        public double reward;
         public State state;
         public int action;
+
+        public long count;
+        public double reward;
+        public double rewardHit;
+        public double rewardStand;
+
 
         public boolean equals(Node a) {
             return this.state.equals(a.state);
         }
 
-        public Node(State state){
+        public Node(State state) {
             this.children = new ArrayList<Node>();
             this.isChildless = true;
             this.state = state;
             this.count = 0;
+            this.countHit = 0;
+            this.countStand = 0;
             this.reward = 0;
+            this.rewardHit = 0;
+            this.rewardStand = 0;
         }
     }
 
@@ -63,80 +76,118 @@ public abstract class MonteCarloTree<State>{
     public void select(Node n) {
         // System.out.println("selection reached:");
         current = n;
-        if(current.isChildless){
-            if (current.count==0) {
-                // System.out.println("count==0");
-                update();
-            } else {
-                // System.out.println("count!=0");
-                State[] availMoves = findMoves(current.state);
-                for(State s : availMoves){
-                    Node newNode;
-                    if (s != null) {
-                        newNode = new Node(s);
-                        newNode.parent = current;
-                    } else {
-                        newNode = null;
-                    }
-                    current.children.add(newNode); // CONNECT PARENT POINTERS
+        if (isEnd(current.state)) {
+            update();
+        }
+        else { 
+            if(current.isChildless){
+               if (current.count==0) {
+                   // System.out.println("count==0");
+                   update();
+               } else {
+                   // System.out.println("count!=0");
+                   State[] availMoves = findMoves(current.state);
+                   for(State s : availMoves){
+                       Node newNode;
+                       if (s != null) {
+                           newNode = new Node(s);
+                           newNode.parent = current;
+                       } else {
+                           newNode = null;
+                       }
+                       current.children.add(newNode); // CONNECT PARENT POINTERS
+                   }
+                   current.isChildless = false;
+   
+                   // // null check - to not explore the cards that are already in the game
+                   // Node newCurrent;
+                   // while (true) {
+                   //     // sometimes children is null
+                   //     newCurrent = current.children.get(new Random().nextInt(current.children.size()));
+                   //     if (newCurrent != null) break;
+                   // }
+   
+                   // always explore the stand option first
+                   current = current.children.get(52);
+                   update();
                 }
-                current.isChildless = false;
-
-                // // null check - to not explore the cards that are already in the game
-                // Node newCurrent;
-                // while (true) {
-                //     // sometimes children is null
-                //     newCurrent = current.children.get(new Random().nextInt(current.children.size()));
-                //     if (newCurrent != null) break;
-                // }
-
-                // always explore the stand option first
-                current = current.children.get(52);
-                update();
+            } else {
+                   current = findMax();
+                   select(current);
+                   // update();
             }
         }
-        else{
-            current = findMax();
-            select(current);
-            // update();
-        }
-    } 
+    }
 
-    public void update(){
-        for(int i=0; i<NUMITERATIONS; i++){
-            double newReward = rollout(current.state) / NUMITERATIONS;
-            // System.out.print("rollout result: ");
-            // System.out.println(newReward);
-            current.reward += newReward;
+    public double max(double a, double b) {
+        if (a > b) {
+            return a;
+        } else {
+            return b;
         }
-        // System.out.print("current's reward ");
-        // System.out.println(current.reward);
-        backpropagate();
+    }
+
+    public void update() {
+        double newReward = 0;
+
+        for(int i=0; i<NUMITERATIONS; i++){
+            newReward += rollout(current.state);
+            // System.out.print("rollout result: ");
+            // System.out.println(rollout(current.state));
+        }
+
+        newReward /= NUMITERATIONS;
+
+        double oldReward = current.reward;
+
+        //type of backprop:
+        BackPropType bct;
+
+        if (current.state.isStanding) {
+            currrent.rewardStand += newReward;
+            currrent.reward += newReward;
+            bct = BackPropType.STAND;
+        } else {
+            current.rewardHit += newReward;
+            current.reward += newReward;
+            bct = BackPropType.HIT;
+        }
+
+        // count is not updated yet
+        // it is only updated in backpropagate()
+        // current.reward = 
+
+        // difference between the old and new reward
+        // that needs to be backpropagated
+        double diff = current.reward - oldReward;        
+
+        backpropagate(diff, bct);
     }
 
     public double rollout(State simState){
         if(isEnd(simState)){
-            // System.out.print("rollout result: ");
-            // System.out.println(calcReward(simState));
             return calcReward(simState);
         }
         simState = getRandomMove(simState);
-        // System.out.println("rollout cont'd");
         return rollout(simState);
     }
 
-    public void backpropagate(){
-        while (true) { //! current.equals(gameNode.parent)//! STARTS AT TOP // current.parent != null
-            // System.out.println("backprop reached");
-            // System.out.println(current.state == null);
+    public void backpropagate(double addedReward, BackPropType backPropType) {
+        BackPropType bct = backPropType;
+        while (true) {
             if (!current.equals(root)) {
-                // System.out.println("not equals root");
-                current.parent.reward += current.reward;
+                if (bct == BackPropType.STAND) {
+                    current.parent.rewardStand += addedReward;
+                    // STAND only applies the first time
+                    bct = BackPropType.HIT;
+                } else {
+                    current.parent.rewardHit+= addedReward;
+                }
+                (current.count + 1) * max(current.rewardStand / current.count, current.rewardHit);
+                current.parent.reward += addedReward;
             }
             current.count++;
             if (current.equals(gameNode)) {
-                // System.out.println("so:");
-                // System.out.println(current.equals(gameNode));
                 break;
             }
             current = current.parent;

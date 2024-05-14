@@ -23,7 +23,7 @@ public class BlackjackState {
 		}
 
 		// checking if you have 5 cards that do not exceed 21
-		if (numCards > 4) {
+		if (numCards > 4 && score != 0) {
 			maxScore = 21;
 		}
 

@@ -10,8 +10,6 @@ In Blackjack, all players (in this case the user and the computer referencing th
 	- Fix constants redundancy
 	- Change EXPLORATION to float
 	- Consider making constants final variables
-	- Consider converting pHand and dHand to Arraylists
 	- Consider timing play() to player's decision time rather than hardcoding number of simulations
 	- Make MonteCarloTree more abstract
-	- Move calculations for finding number of cards in CLI to a function
 	- Implement 5 card win in Blackjack

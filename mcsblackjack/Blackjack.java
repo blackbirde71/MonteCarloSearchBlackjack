@@ -1,7 +1,6 @@
 /*
-* Main file. Will manage:
-	- Blackjack player vs computer game
-	- Command line interface
+* Main file; runs the game
+* Implements computer algorithmic choice, dealer deterministic choice, and player input choice
 */
 package mcsblackjack;
 import java.util.*;
@@ -13,18 +12,13 @@ public class Blackjack{
     public List<Integer> decklist;
     public Integer[] deck;
     public int deckIndex, dIndex, pIndex;
-    public static HashMap<Integer, String> suit;
-    public static HashMap<Integer, String> rank;
     public Card[] dHand = new Card[5];
     public Card[] pHand = new Card[5];
     public int roundNum;
     public boolean dDone, cDone, pDone;
 	public Blackjack() {
-		this.suit = new HashMap<Integer, String> ();
-		this.rank = new HashMap<Integer, String> ();
-		learnCards();
 		this.EXPLORATION = 2;
-		this.NUMITERATIONS = 100;
+		this.NUMITERATIONS = 10000;
 		this.deckIndex = 0;
 		this.dIndex = 0;
 		this.pIndex = 0;
@@ -32,16 +26,6 @@ public class Blackjack{
 		this.dDone = false;
 		this.cDone = false;
 		this.pDone = false;
-	}
-	public void learnCards(){
-		suit.put(0, "♣"); //? Necessary?
-		suit.put(1, "♦");
-		suit.put(2, "♥");
-		suit.put(3, "♠");
-		rank.put(9, "J");
-		rank.put(10, "Q");
-		rank.put(11, "K");
-		rank.put(12, "A");
 	}
 	public ArrayList<Integer> dealCards(){
 		Integer[] deck = new Integer[52];
@@ -51,7 +35,7 @@ public class Blackjack{
 		decklist = Arrays.asList(deck);
 		Collections.shuffle(decklist);
 		ArrayList<Integer> cHand = new ArrayList<Integer>();
-		dHand[dIndex++] = new Card(decklist.get(deckIndex++).intValue()); //! check functionality of inline post-increment
+		dHand[dIndex++] = new Card(decklist.get(deckIndex++).intValue());
 		dHand[dIndex++] = new Card(decklist.get(deckIndex++).intValue());
 		pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue());
 		pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue());
@@ -77,7 +61,7 @@ public class Blackjack{
 				print("DEALER HIT");
 				dHand[dIndex++] = new Card(decklist.get(deckIndex++).intValue());
 				total = calcScore(dHand);
-				if(total>21){
+				if(total==0){
 				print("DEALER BUST");
 				endGame();
 				}
@@ -89,29 +73,28 @@ public class Blackjack{
 		}
 	}
 	public void cTurn(){
-		if(! bjt.current.state.isStanding){
+		if(!cDone){
 			String cMove = bjt.chooseMove();
 			print("COMPUTER " + cMove);
 			if(cMove == "STAND"){
 				cDone = true;
 			}
-			else if(bjt.current.state.isEnd && !bjt.current.state.isStanding){
+			else if(bjt.current.state.score==0){
 				print("COMPUTER BUST");
 				cDone = true;
 			}
 		}
 	}
 	public void pTurn(){
-		if(! pDone){}
+		if(! pDone){
 			Scanner readIn = new Scanner(System.in);
 			printI("(h)it or (s)tand? ");
 			String pMove = readIn.nextLine();
 			if(pMove.equals("h")){
 				print("PLAYER HIT");
-				pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue()); //> Check for hand of 5 and then announce player win in this case
+				pHand[pIndex++] = new Card(decklist.get(deckIndex++).intValue());
 				int total = calcScore(pHand);
-				print(String.valueOf(total));
-				if(total>21){
+				if(total==0){
 					print("PLAYER BUST");
 					pDone = true;
 				}
@@ -121,28 +104,26 @@ public class Blackjack{
 				pDone = true;
 			}
 		}
-	public void displayTable(){ //> Combine with displayEndTable()
-		Card[] cHandArray = new Card[5];
-		for(int i = 0; i<bjt.current.state.cards.size(); i++){
-			cHandArray[i] = new Card(bjt.current.state.cards.get(i));
-		}
-		Hand cCards = new Hand(cHandArray, HandType.COMPUTER);
-		Hand dCards = new Hand(dHand, HandType.DEALER);
-		Hand pCards = new Hand(pHand, HandType.PLAYER);
-		print("\n"+cCards.toString()+"  computer\n");
-		print(dCards.toString()+"  dealer\n");
-		print(pCards.toString()+"  player\n");
 	}
-	public void displayEndTable(){
+	public void displayTable(boolean gameIsOver){
 		Card[] cHandArray = new Card[5];
 		for(int i = 0; i<bjt.current.state.cards.size(); i++){
 			cHandArray[i] = new Card(bjt.current.state.cards.get(i));
 		}
-		Hand cCards = new Hand(cHandArray, HandType.PLAYER);
-		Hand dCards = new Hand(dHand, HandType.PLAYER);
-		Hand pCards = new Hand(pHand, HandType.PLAYER);
-		print("\n"+cCards.toString()+"  computer\n");
+		Hand cCards, pCards, dCards;
+		if(gameIsOver){
+			cCards = new Hand(cHandArray, HandType.PLAYER);
+			dCards = new Hand(dHand, HandType.PLAYER);
+			pCards = new Hand(pHand, HandType.PLAYER);
+		}
+		else{
+			cCards = new Hand(cHandArray, HandType.COMPUTER);
+			dCards = new Hand(dHand, HandType.DEALER);
+			pCards = new Hand(pHand, HandType.PLAYER);
+		}
+		System.out.println();
 		print(dCards.toString()+"  dealer\n");
+		print(cCards.toString()+"  computer\n");
 		print(pCards.toString()+"  player\n");
 	}
 	public void displayResults(){
@@ -151,22 +132,21 @@ public class Blackjack{
 		int dTotal = calcScore(dHand);
 		int pTotal = calcScore(pHand);
 		int cTotal = bjt.current.state.score;
-		if(dTotal>21){
+		if(dTotal==0){
 			dEnd = "BUSTED";
 			dTotal = 0;
 		}
 		else{
 			dEnd = "STANDING";
 		}
-		if(pTotal>21){
+		if(pTotal==0){
 			pEnd = "BUSTED";
 			pTotal = -1;
 		}
 		else{
 			pEnd = "STANDING";
 		}
-
-		if(bjt.current.state.isEnd && ! bjt.current.state.isStanding){
+		if(cTotal==0){
 			cEnd = "BUSTED";
 			cTotal = -1;
 		}
@@ -197,15 +177,12 @@ public class Blackjack{
 	}
 	public void endGame(){
 		print("\ngame over");
-		displayEndTable();
+		displayTable(true);
 		displayResults();
+		System.exit(0);
 	}
 	public void runGame(){
-		displayTable();
-		/*for(Card c : pHand){
-			print(String.valueOf(c.rank));
-			print(String.valueOf(c.suit));
-		}*/
+		displayTable(false);
 		print("round " + roundNum++);
 		dTurn();
 		bjt.play();
@@ -214,9 +191,7 @@ public class Blackjack{
 		if(dDone && cDone && pDone){
 			endGame();
 		}
-		else{
-			runGame();
-		}
+		runGame();
 	}
 	public void print(String s){
 		try{Thread.sleep(500);}catch(InterruptedException e){}

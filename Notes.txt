@@ -7,3 +7,4 @@ To do:
 	- Consider timing play() to player's decision time rather than hardcoding number of simulations
 	- Make MonteCarloTree abstract
 	- Move calculations for finding number of cards in CLI to a function
+	- Implement 5 card win in Blackjack
